@@ -55,8 +55,7 @@ export default function Component() {
       <div className="max-w-4xl mx-auto ">
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center space-x-4">
-            <Shield className="w-12 h-12 text-[#00A3FF]" />
-            <h1 className="text-3xl font-bold">Rugby Team Roster</h1>
+            <h1 className="text-3xl font-bold">Create Roster</h1>
           </div>
           <Button className="bg-[#00A3FF] hover:bg-[#0077CC] text-white">
             <PlusCircle className="mr-2 h-4 w-4" /> Add New Player
