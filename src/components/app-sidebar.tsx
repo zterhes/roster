@@ -6,7 +6,6 @@ import {
 	SidebarFooter,
 	SidebarGroup,
 	SidebarGroupContent,
-	SidebarGroupLabel,
 	SidebarHeader,
 	SidebarMenu,
 	SidebarMenuButton,
@@ -15,6 +14,7 @@ import {
 } from "@/components/ui/sidebar";
 import { UserButton, useUser } from "@clerk/nextjs";
 import React from "react";
+import Image from "next/image";
 
 // Menu items
 const items = [
@@ -41,7 +41,7 @@ export function AppSidebar() {
 		<Sidebar>
 			<SidebarContent className="bg-[#0F1C26]">
 				<SidebarHeader className="bg-[#0F1C26] border-b border-[#00A3FF] flex flex-col items-center">
-          <img className="w-12 h-12" src="/images/gorilla_logo.png" alt="" />
+					<Image className="w-12 h-12" src="/images/gorilla_logo.png" alt="" />
 					<h2 className="text-white">Gorillák Roster Management</h2>
 				</SidebarHeader>
 				<SidebarGroup>

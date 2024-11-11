@@ -5,18 +5,16 @@ import {
 	RedirectToSignIn,
 	SignedIn,
 	SignedOut,
-	UserButton,
 } from "@clerk/nextjs";
 import "./globals.css";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
-import  { useState } from "react";
+import { useState } from "react";
 
 export default function RootLayout({
 	children,
 }: { children: React.ReactNode }) {
-  
-  const [sidebarIsopen, setSidebarIsopen] = useState(true)
+	const [sidebarIsopen, setSidebarIsopen] = useState(true);
 
 	return (
 		<ClerkProvider>
@@ -31,13 +29,16 @@ export default function RootLayout({
 									backgroundSize: "56px 100px",
 								}}
 							>
-                <SidebarProvider open={sidebarIsopen} onOpenChange={setSidebarIsopen}>
-                <AppSidebar />
-                <main>
-                <SidebarTrigger />
-								{children}
-                </main>
-                </SidebarProvider>
+								<SidebarProvider
+									open={sidebarIsopen}
+									onOpenChange={setSidebarIsopen}
+								>
+									<AppSidebar />
+									<main>
+										<SidebarTrigger />
+										{children}
+									</main>
+								</SidebarProvider>
 							</div>
 						</SignedIn>
 						<SignedOut>
