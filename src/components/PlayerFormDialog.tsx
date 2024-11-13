@@ -1,11 +1,11 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
-import { Button } from "./ui/button";
 import { Label } from "./ui/label";
 import { Input } from "./ui/input";
 import type { Player } from "@/types/Player";
-import { Upload } from "lucide-react";
 import { z } from "zod";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
+import { useState } from "react";
+import { Button } from "./ui/button";
 
 type FormProps = {
 	isDialogOpen: boolean;
@@ -16,7 +16,7 @@ type FormProps = {
 const playerSchema = z.object({
 	firstName: z.string(),
 	lastName: z.string(),
-	file: z.string(),
+	file: z.instanceof(File).optional(),
 });
 
 type FormValues = z.infer<typeof playerSchema>;
@@ -26,18 +26,33 @@ const PlayerFormDialog: React.FC<FormProps> = ({
 	setIsDialogOpen,
 	player,
 }) => {
-	const { register, handleSubmit, } = useForm<FormValues>({
+	const { register, handleSubmit, control } = useForm<FormValues>({
 		defaultValues: player
 			? {
 					firstName: player.firstName,
 					lastName: player.lastName,
-					file: player.photoUrl,
+					file: undefined,
 				}
 			: undefined,
 	});
 
+	const [imagePreview, setImagePreview] = useState<string | undefined>(
+		player?.photoUrl,
+	);
+
 	const onSubmit = (data: FormValues) => {
-		console.log(data);
+		console.log("Form Data:", data);
+		// Handle file upload to server
+	};
+
+	const handleFileChange = (file: File | null) => {
+		if (file) {
+			const reader = new FileReader();
+			reader.onloadend = () => {
+				setImagePreview(reader.result as string);
+			};
+			reader.readAsDataURL(file);
+		}
 	};
 
 	return (
@@ -50,6 +65,34 @@ const PlayerFormDialog: React.FC<FormProps> = ({
 				</DialogHeader>
 				<form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
 					<div className="space-y-2">
+						<Controller
+							name="file"
+							control={control}
+							render={({ field }) => (
+								<div className="flex flex-col items-center">
+									<img
+										src={imagePreview || "/placeholder-image.png"}
+										alt="Player"
+										className="w-32 h-32 rounded-full object-cover cursor-pointer"
+										onClick={() => document.getElementById("photo")?.click()}
+									/>
+									<input
+										id="photo"
+										type="file"
+										accept="image/*"
+										style={{ display: "none" }}
+										onChange={(e) => {
+											const file = e.target.files?.[0] ?? null;
+											field.onChange(file);
+											handleFileChange(file);
+										}}
+									/>
+								</div>
+							)}
+						/>
+					</div>
+
+					<div className="space-y-2">
 						<Label htmlFor="firstName" className="text-gray-300">
 							First Name
 						</Label>
@@ -60,6 +103,7 @@ const PlayerFormDialog: React.FC<FormProps> = ({
 							placeholder="Enter first name"
 						/>
 					</div>
+
 					<div className="space-y-2">
 						<Label htmlFor="lastName" className="text-gray-300">
 							Last Name
@@ -71,33 +115,7 @@ const PlayerFormDialog: React.FC<FormProps> = ({
 							placeholder="Enter last name"
 						/>
 					</div>
-					<div className="space-y-2">
-						<Label htmlFor="photo" className="text-gray-300">
-							Upload Photo
-						</Label>
-						<div className="flex items-center space-x-2">
-							<Input
-								id="photo"
-								type="file"
-								{...register("file")}
-								className="hidden"
-								accept="image/*"
-							/>
-							<Button
-								type="button"
-								onClick={() => document.getElementById("photo")?.click()}
-								className="bg-[#162029] border-[#193549] hover:bg-[#1F2937] text-white"
-							>
-								<Upload className="w-4 h-4 mr-2" />
-								Choose File
-							</Button>
-							<span className="text-sm text-gray-400">
-								{player?.photoUrl
-									? "New photo selected"
-									: "No file chosen"}
-							</span>
-						</div>
-					</div>
+
 					<Button
 						type="submit"
 						className="w-full bg-[#00A3FF] hover:bg-[#0077CC] text-white"
