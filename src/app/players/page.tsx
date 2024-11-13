@@ -1,5 +1,6 @@
 "use client";
 
+import PlayerFormDialog from "@/components/PlayerFormDialog";
 import EditPlayerDialog from "@/components/PlayerFormDialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -52,10 +53,10 @@ export default function PlayersList() {
 	const [isDialogOpen, setIsDialogOpen] = useState(false);
 	const [players, setPlayers] = useState<Player[]>(initialPlayers);
 	const [searchTerm, setSearchTerm] = useState("");
-	const [editingPlayer, setEditingPlayer] = useState<Player | null>(null);
+	const [editingPlayer, setEditingPlayer] = useState<Player|undefined>(undefined);
 
 	const handleDialogOpen = ( player?: Player) => {
-		setEditingPlayer(player ? player : null);
+		setEditingPlayer(player ? player : undefined);
 		setIsDialogOpen(true);
 	};
 
@@ -78,11 +79,13 @@ export default function PlayersList() {
 					<UserPlus className="mr-2 h-4 w-4" /> Add New Player
 				</Button>
 			</div>
-			<EditPlayerDialog
+			{isDialogOpen && (
+				<PlayerFormDialog
 				isDialogOpen={isDialogOpen}
 				setIsDialogOpen={setIsDialogOpen}
 				player={editingPlayer}
 			/>
+			)}
 
 			<Card className="bg-[#0F1C26] border-[#193549] mb-8">
 				<CardContent className="pt-6">
