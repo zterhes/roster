@@ -5,61 +5,30 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import type { Player } from "@/types/Player";
-import { Edit, Search, UserPlus } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { Edit, Loader2, Search, UserPlus } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
-
-const initialPlayers: Player[] = [
-	{
-		id: 1,
-		firstName: "John",
-		lastName: "Doe",
-		photoUrl: "/placeholder.svg?height=100&width=100",
-	},
-	{
-		id: 2,
-		firstName: "Jane",
-		lastName: "Smith",
-		photoUrl: "/placeholder.svg?height=100&width=100",
-	},
-	{
-		id: 3,
-		firstName: "Mike",
-		lastName: "Johnson",
-		photoUrl: "/placeholder.svg?height=100&width=100",
-	},
-	{
-		id: 4,
-		firstName: "Emily",
-		lastName: "Brown",
-		photoUrl: "/placeholder.svg?height=100&width=100",
-	},
-	{
-		id: 5,
-		firstName: "Chris",
-		lastName: "Wilson",
-		photoUrl: "/placeholder.svg?height=100&width=100",
-	},
-	{
-		id: 6,
-		firstName: "Sarah",
-		lastName: "Taylor",
-		photoUrl: "/placeholder.svg?height=100&width=100",
-	},
-];
+import { fetchPlayers } from "../utils/apiService";
 
 export default function PlayersList() {
 	const [isDialogOpen, setIsDialogOpen] = useState(false);
-	const [players] = useState<Player[]>(initialPlayers);
 	const [searchTerm, setSearchTerm] = useState("");
-	const [editingPlayer, setEditingPlayer] = useState<Player|undefined>(undefined);
+	const [editingPlayer, setEditingPlayer] = useState<Player | undefined>(
+		undefined,
+	);
 
-	const handleDialogOpen = ( player?: Player) => {
+	const { data, status, error, isLoading} = useQuery({
+		queryKey: [fetchPlayers.key],
+		queryFn: () => fetchPlayers.fn(),
+	});
+
+	const handleDialogOpen = (player?: Player) => {
 		setEditingPlayer(player ? player : undefined);
 		setIsDialogOpen(true);
 	};
 
-	const filteredPlayers = players.filter(
+	const filteredPlayers = data?.filter(
 		(player) =>
 			player.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
 			player.lastName.toLowerCase().includes(searchTerm.toLowerCase()),
@@ -80,10 +49,10 @@ export default function PlayersList() {
 			</div>
 			{isDialogOpen && (
 				<PlayerFormDialog
-				isDialogOpen={isDialogOpen}
-				setIsDialogOpen={setIsDialogOpen}
-				player={editingPlayer}
-			/>
+					isDialogOpen={isDialogOpen}
+					setIsDialogOpen={setIsDialogOpen}
+					player={editingPlayer}
+				/>
 			)}
 
 			<Card className="bg-[#0F1C26] border-[#193549] mb-8">
@@ -102,40 +71,57 @@ export default function PlayersList() {
 			</Card>
 
 			<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-				{filteredPlayers.map((player) => (
-					<Card key={player.id} className="bg-[#0F1C26] border-[#193549]">
-						<CardContent className="p-4">
-							<div className="flex items-center space-x-4">
-								<Image
-									src={player.photoUrl}
-									alt={`${player.firstName} ${player.lastName}`}
-									width={64}
-									height={64}
-									className="rounded-full"
-								/>
-								<div className="flex-grow">
-									<h2 className="text-lg font-semibold text-white">
-										{player.firstName} {player.lastName}
-									</h2>
+				{data &&
+					filteredPlayers &&
+					filteredPlayers.map((player: Player) => (
+						<Card key={player.id} className="bg-[#0F1C26] border-[#193549]">
+							<CardContent className="p-4">
+								<div className="flex items-center space-x-4">
+									<Image
+										src={player.photoUrl}
+										alt={`${player.firstName} ${player.lastName}`}
+										width={64}
+										height={64}
+										className="rounded-full"
+									/>
+									<div className="flex-grow">
+										<h2 className="text-lg font-semibold text-white">
+											{player.firstName} {player.lastName}
+										</h2>
+									</div>
+									<Button
+										variant="outline"
+										size="icon"
+										className="bg-[#162029] border-[#193549] hover:bg-[#1F2937] text-white"
+										onClick={() => handleDialogOpen(player)}
+									>
+										<Edit className="h-4 w-4" />
+										<span className="sr-only">
+											Edit {player.firstName} {player.lastName}
+										</span>
+									</Button>
 								</div>
-								<Button
-									variant="outline"
-									size="icon"
-									className="bg-[#162029] border-[#193549] hover:bg-[#1F2937] text-white"
-									onClick={() => handleDialogOpen(player)}
-								>
-									<Edit className="h-4 w-4" />
-									<span className="sr-only">
-										Edit {player.firstName} {player.lastName}
-									</span>
-								</Button>
-							</div>
-						</CardContent>
-					</Card>
-				))}
+							</CardContent>
+						</Card>
+					))}
 			</div>
 
-			{filteredPlayers.length === 0 && (
+			{isLoading&& (
+				<div className="flex justify-center mt-8">
+					<Loader2 className="animate-spin mr-2" />
+					<p className="text-center text-gray-400 mt-8">
+					Loading players...
+				</p>
+				</div>
+			)}
+
+			{error && (
+				<p className="text-center text-gray-400 mt-8">
+					Something went wrong. Please try again.
+				</p>
+			)}
+
+			{filteredPlayers?.length === 0 && (
 				<p className="text-center text-gray-400 mt-8">
 					No players found matching your search.
 				</p>

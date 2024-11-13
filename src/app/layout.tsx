@@ -10,6 +10,9 @@ import "./globals.css";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
 import { useState } from "react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+const queryClient = new QueryClient();
 
 export default function RootLayout({
 	children,
@@ -17,9 +20,9 @@ export default function RootLayout({
 	const [sidebarIsopen, setSidebarIsopen] = useState(true);
 
 	return (
-		<ClerkProvider>
-			<html lang="en">
-				<body>
+		<html lang="en">
+			<body>
+				<QueryClientProvider client={queryClient}>
 					<ClerkProvider>
 						<SignedIn>
 							<div
@@ -45,8 +48,8 @@ export default function RootLayout({
 							<RedirectToSignIn />
 						</SignedOut>
 					</ClerkProvider>
-				</body>
-			</html>
-		</ClerkProvider>
+				</QueryClientProvider>
+			</body>
+		</html>
 	);
 }

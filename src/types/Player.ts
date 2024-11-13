@@ -1,11 +1,13 @@
 import { z } from "zod";
 
-export type Player = {
-	id: number;
-	firstName: string;
-	lastName: string;
-	photoUrl: string;
-};
+export const playerSchema = z.object({
+	id: z.number(),
+	firstName: z.string(),
+	lastName: z.string(),
+	photoUrl: z.string(),
+});
+
+export type Player = z.infer<typeof playerSchema>;
 
 export type UpdatePlayerDto = {
 	id: number;

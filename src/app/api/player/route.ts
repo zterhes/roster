@@ -44,7 +44,7 @@ export const POST = async (req: NextRequest) => {
 	}
 };
 
-export const GET = async (req: NextRequest) => {
+export const GET = async () => {
 	const result = await getAllPlayers();
 	return NextResponse.json(result, { status: 200 });
 };
