@@ -4,7 +4,7 @@ import { updatePlayerRequestSchema } from "@/types/Player";
 import { updatePlayer } from "@/db";
 
 import { PersistationError } from "@/types/Errors";
-import { uploadToBlob } from "../utils/blob";
+import { uploadToBlob } from "../../utils/blob";
 
 export const POST = async (
 	req: Request,

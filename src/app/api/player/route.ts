@@ -4,7 +4,7 @@ import { PersistationError } from "@/types/Errors";
 import { createPlayerRequestSchema } from "@/types/Player";
 import { type NextRequest, NextResponse } from "next/server";
 import { ZodError } from "zod";
-import { uploadToBlob } from "./utils/blob";
+import { uploadToBlob } from "../utils/blob";
 
 export const POST = async (req: NextRequest) => {
 	try {
