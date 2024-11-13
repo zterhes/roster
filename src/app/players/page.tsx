@@ -1,7 +1,6 @@
 "use client";
 
 import PlayerFormDialog from "@/components/PlayerFormDialog";
-import EditPlayerDialog from "@/components/PlayerFormDialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -51,7 +50,7 @@ const initialPlayers: Player[] = [
 
 export default function PlayersList() {
 	const [isDialogOpen, setIsDialogOpen] = useState(false);
-	const [players, setPlayers] = useState<Player[]>(initialPlayers);
+	const [players] = useState<Player[]>(initialPlayers);
 	const [searchTerm, setSearchTerm] = useState("");
 	const [editingPlayer, setEditingPlayer] = useState<Player|undefined>(undefined);
 

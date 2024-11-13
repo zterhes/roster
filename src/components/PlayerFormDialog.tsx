@@ -6,6 +6,8 @@ import { z } from "zod";
 import { useForm, Controller } from "react-hook-form";
 import { useState } from "react";
 import { Button } from "./ui/button";
+import { zodResolver } from "@hookform/resolvers/zod";
+
 
 type FormProps = {
 	isDialogOpen: boolean;
@@ -34,6 +36,7 @@ const PlayerFormDialog: React.FC<FormProps> = ({
 					file: undefined,
 				}
 			: undefined,
+			resolver: zodResolver(playerSchema),
 	});
 
 	const [imagePreview, setImagePreview] = useState<string | undefined>(
@@ -42,7 +45,6 @@ const PlayerFormDialog: React.FC<FormProps> = ({
 
 	const onSubmit = (data: FormValues) => {
 		console.log("Form Data:", data);
-		// Handle file upload to server
 	};
 
 	const handleFileChange = (file: File | null) => {
