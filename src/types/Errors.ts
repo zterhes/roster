@@ -1,10 +1,11 @@
-export class DBError extends Error {
-	constructor(type: DBErrorType, message: string) {
+export class PersistationError extends Error {
+	constructor(type: PersistationErrorType, message: string) {
 		super(message);
 	}
 }
 
-export enum DBErrorType {
+export enum PersistationErrorType {
 	FailedToCreateUser = "FailedToCreateUser",
 	UpdateUser = "UpdateUser",
+	BlobError = "BlobError",
 }

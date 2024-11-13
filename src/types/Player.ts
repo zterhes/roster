@@ -32,7 +32,7 @@ export const createPlayerRequestSchema = z.object({
 	file: fileSchema.nullable(),
 });
 
-export const updatePlayerSchema = z.object({
+export const updatePlayerRequestSchema = z.object({
 	id: z.number(),
 	firstName: z.string(),
 	lastName: z.string().optional(),
