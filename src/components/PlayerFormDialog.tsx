@@ -7,6 +7,7 @@ import { useForm, Controller } from "react-hook-form";
 import { useState } from "react";
 import { Button } from "./ui/button";
 import { zodResolver } from "@hookform/resolvers/zod";
+import Image from "next/image";
 
 
 type FormProps = {
@@ -72,10 +73,12 @@ const PlayerFormDialog: React.FC<FormProps> = ({
 							control={control}
 							render={({ field }) => (
 								<div className="flex flex-col items-center">
-									<img
+									<Image
+										width={100}
+										height={100}
 										src={imagePreview || "/placeholder-image.png"}
 										alt="Player"
-										className="w-32 h-32 rounded-full object-cover cursor-pointer"
+										className="rounded-full object-cover cursor-pointer"
 										onClick={() => document.getElementById("photo")?.click()}
 									/>
 									<input

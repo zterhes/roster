@@ -18,7 +18,7 @@ export default function PlayersList() {
 		undefined,
 	);
 
-	const { data, status, error, isLoading} = useQuery({
+	const { data, error, isLoading} = useQuery({
 		queryKey: [fetchPlayers.key],
 		queryFn: () => fetchPlayers.fn(),
 	});
@@ -27,6 +27,8 @@ export default function PlayersList() {
 		setEditingPlayer(player ? player : undefined);
 		setIsDialogOpen(true);
 	};
+
+//TODO: handle filtered players init on success
 
 	const filteredPlayers = data?.filter(
 		(player) =>
