@@ -30,7 +30,7 @@ const items = [
 	},
 	{
 		title: "Players",
-		url: "#",
+		url: "/players",
 		icon: Users,
 	},
 ];
@@ -41,7 +41,7 @@ export function AppSidebar() {
 		<Sidebar>
 			<SidebarContent className="bg-[#0F1C26]">
 				<SidebarHeader className="bg-[#0F1C26] border-b border-[#00A3FF] flex flex-col items-center">
-					<Image className="w-12 h-12" src="/images/gorilla_logo.png" alt="" />
+					<Image width={50} height={50} src="/images/gorilla_logo.png" alt="" />
 					<h2 className="text-white">Gorillák Roster Management</h2>
 				</SidebarHeader>
 				<SidebarGroup>
