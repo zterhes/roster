@@ -1,10 +1,10 @@
-import { createPlayer, getAllPlayers, updatePlayer } from "@/db";
-import { NextResponse, type NextRequest } from "next/server";
-import { put } from "@vercel/blob";
-import { PersistationErrorType, PersistationError } from "@/types/Errors";
-import { createPlayerRequestSchema } from "@/types/Player";
-import { ZodError } from "zod";
+import { createPlayer, getAllPlayers } from "@/db";
 import env from "@/env";
+import { PersistationError } from "@/types/Errors";
+import { createPlayerRequestSchema } from "@/types/Player";
+import { type NextRequest, NextResponse } from "next/server";
+import { ZodError } from "zod";
+import { uploadToBlob } from "./utils/blob";
 
 export const POST = async (req: NextRequest) => {
 	try {
@@ -19,17 +19,11 @@ export const POST = async (req: NextRequest) => {
 		let blobUrl: string = env.DEFAULT_IMAGE_URL;
 
 		if (file) {
-			const blob = await put(`${firstName}_${lastName}`, file, {
-				access: "public",
+			blobUrl = await uploadToBlob({
+				firstName,
+				lastName,
+				file,
 			});
-			if (blob) {
-				blobUrl = blob.url;
-			} else {
-				throw new PersistationError(
-					PersistationErrorType.BlobError,
-					"Blob error",
-				);
-			}
 		}
 
 		const createResult = await createPlayer(firstName, lastName, blobUrl);

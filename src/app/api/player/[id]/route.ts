@@ -2,8 +2,9 @@ import { NextResponse } from "next/server";
 import { ZodError } from "zod";
 import { updatePlayerRequestSchema } from "@/types/Player";
 import { updatePlayer } from "@/db";
-import { put } from "@vercel/blob";
+
 import { PersistationError } from "@/types/Errors";
+import { uploadToBlob } from "../utils/blob";
 
 export const POST = async (
 	req: Request,
@@ -22,14 +23,11 @@ export const POST = async (
 
 		let blobUrl: string | undefined = undefined;
 		if (request.file) {
-			const blob = await put(
-				`${request.firstName}_${request.lastName}`,
-				request.file,
-				{
-					access: "public",
-				},
-			);
-			blobUrl = blob.url;
+			blobUrl = await uploadToBlob({
+				firstName: request.firstName,
+				lastName: request.lastName,
+				file: request.file,
+			});
 		}
 
 		await updatePlayer({
