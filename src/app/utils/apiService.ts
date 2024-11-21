@@ -34,7 +34,7 @@ export const fetchPlayers = {
 
 			return playerSchema.array().parse(response.data);
 		} catch (error) {
-			handleError(error);
+			handleError(error, "/api/player");
 		}
 	},
 	key: "fetchPlayers",
@@ -58,7 +58,7 @@ export const createPlayer = {
 			});
 			return createPlayerResponseSchema.parse(response.data);
 		} catch (error) {
-			handleError(error);
+			handleError(error, "/api/player");
 		}
 	},
 	key: "createPlayer",
@@ -71,21 +71,19 @@ export const updatePlayer = {
 			lastName: request.lastName,
 			file: request.file,
 		});
-		console.log("SERVICE");
 
 		try {
 			const response = await axios({
-				method: "put",
+				method: "post",
 				url: `/api/player/${request.id}`,
 				data: formData,
 				headers: {
 					"Content-Type": "multipart/form-data",
 				},
 			});
-			console.log("response", response.data);
-			return createPlayerResponseSchema.parse(response.data);
+			return response.status;
 		} catch (error) {
-			handleError(error);
+			throw handleError(error, "/api/player/${request.id}");
 		}
 	},
 	key: "updatePlayer",
@@ -95,18 +93,19 @@ const buildPlayerFormData = (request: CreatePlayerRequest) => {
 	const formData = new FormData();
 	formData.append("firstName", request.firstName);
 	formData.append("lastName", request.lastName);
+	console.log("request.file", request.file);
 	if (request.file) {
 		formData.append("file", request.file);
 	}
 	return formData;
 };
 
-const handleError = (error: unknown) => {
+const handleError = (error: unknown, route: string) => {
 	if (error instanceof ZodError) {
 		console.error(error);
 		return new ClientServerCallError(
 			ClientServerCallErrorType.ValidationError,
-			"/api/player",
+			route,
 			error.message,
 		);
 	}
@@ -114,14 +113,14 @@ const handleError = (error: unknown) => {
 		console.error(error);
 		return new ClientServerCallError(
 			ClientServerCallErrorType.AxiosError,
-			"/api/player",
+			route,
 			error.message,
 		);
 	}
 	console.error(error);
 	return new ClientServerCallError(
 		ClientServerCallErrorType.UnknownError,
-		"/api/player",
+		route,
 		(error as Error).message,
 	);
 };

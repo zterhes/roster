@@ -13,7 +13,6 @@ export const POST = async (
 	try {
 		const { id } = await params;
 		const formData = await request.formData();
-		console.log("formData", formData);
 
 		const requestData = updatePlayerRequestSchema.parse({
 			id: Number(id),

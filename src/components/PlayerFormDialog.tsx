@@ -1,7 +1,12 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
 import { Label } from "./ui/label";
 import { Input } from "./ui/input";
-import { createPlayerRequestSchema, updatePlayerRequestSchema, type Player } from "@/types/Player";
+import {
+	createPlayerRequestSchema,
+	type UpdatePlayerRequest,
+	updatePlayerRequestSchema,
+	type Player,
+} from "@/types/Player";
 import { z } from "zod";
 import { useForm, Controller } from "react-hook-form";
 import { useState } from "react";
@@ -30,7 +35,6 @@ const PlayerFormDialog: React.FC<FormProps> = ({
 	setIsDialogOpen,
 	player,
 }) => {
-
 	const isEditing = !!player;
 	const { register, handleSubmit, control } = useForm<FormValues>({
 		defaultValues: player
@@ -50,7 +54,6 @@ const PlayerFormDialog: React.FC<FormProps> = ({
 	const queryClient = useQueryClient();
 	const createMutation = useMutation({
 		mutationFn: (data: FormValues) => {
-			console.log('create', data)
 			const request = createPlayerRequestSchema.parse({
 				firstName: data.firstName,
 				lastName: data.lastName,
@@ -60,40 +63,40 @@ const PlayerFormDialog: React.FC<FormProps> = ({
 		},
 		mutationKey: ["createPlayer"],
 		onSuccess: () => {
-			console.log('success')
 			queryClient.invalidateQueries({ queryKey: ["fetchPlayers"] });
 			setIsDialogOpen(false);
+		},
+		onError: (error) => {
+			console.error("error", error);
+			alert("Error creating player");
 		},
 	});
 
 	const updateMutation = useMutation({
 		mutationFn: (data: FormValues) => {
 			if (!player) throw new Error("Player not found");
-			console.log("update1")
-
-			const request = updatePlayerRequestSchema.parse({
+			const request: UpdatePlayerRequest = updatePlayerRequestSchema.parse({
 				id: player.id,
 				firstName: data.firstName,
 				lastName: data.lastName,
 				file: data.file,
 			});
-			console.log("update2", request);
 
 			return updatePlayer.fn(request);
 		},
 		mutationKey: ["updatePlayer"],
 		onSuccess: () => {
-			console.log('success')
 			queryClient.invalidateQueries({ queryKey: ["fetchPlayers"] });
 			setIsDialogOpen(false);
-
 		},
-	})
+		onError: () => {
+			alert("Error updating player");
+		},
+	});
 
 	const onSubmit = (data: FormValues) => {
-		console.log('onsub')
 		if (isEditing) updateMutation.mutate(data);
-		createMutation.mutate(data);
+		else createMutation.mutate(data);
 	};
 
 	const handleFileChange = (file: File | null) => {
@@ -145,7 +148,7 @@ const PlayerFormDialog: React.FC<FormProps> = ({
 							)}
 						/>
 					</div>
-
+					{updateMutation.isError}
 					<div className="space-y-2">
 						<Label htmlFor="firstName" className="text-gray-300">
 							First Name
@@ -157,7 +160,6 @@ const PlayerFormDialog: React.FC<FormProps> = ({
 							placeholder="Enter first name"
 						/>
 					</div>
-
 					<div className="space-y-2">
 						<Label htmlFor="lastName" className="text-gray-300">
 							Last Name
@@ -169,12 +171,17 @@ const PlayerFormDialog: React.FC<FormProps> = ({
 							placeholder="Enter last name"
 						/>
 					</div>
-
 					<Button
 						type="submit"
-						className="w-full bg-[#00A3FF] hover:bg-[#0077CC] text-white"
+						className={
+							updateMutation.isError
+								? "w-full bg-red-500"
+								: "w-full bg-[#00A3FF] hover:bg-[#0077CC] text-white"
+						}
 					>
-						Save Profile
+						{updateMutation.isError
+							? "Something went wrong! Try again, or contact developers"
+							: "Save Profile"}
 					</Button>
 				</form>
 			</DialogContent>

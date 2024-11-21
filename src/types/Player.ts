@@ -31,20 +31,20 @@ const fileSchema = z
 export const createPlayerRequestSchema = z.object({
 	firstName: z.string(),
 	lastName: z.string(),
-	file: fileSchema.nullable(),
+	file: fileSchema.optional().nullable(),
 });
 
 export type CreatePlayerRequest = z.infer<typeof createPlayerRequestSchema>;
 
 export const createPlayerResponseSchema = z.object({
-	id: z.number(),
+	userId: z.number(),
 });
 
 export const updatePlayerRequestSchema = z.object({
 	id: z.number(),
 	firstName: z.string(),
 	lastName: z.string(),
-	file: fileSchema.nullable(),
+	file: fileSchema.optional().nullable(),
 });
 
 export type UpdatePlayerRequest = z.infer<typeof updatePlayerRequestSchema>;
