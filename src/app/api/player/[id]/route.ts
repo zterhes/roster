@@ -7,14 +7,15 @@ import { PersistationError } from "@/types/Errors";
 import { uploadToBlob } from "../../utils/blob";
 
 export const POST = async (
-	req: Request,
-	{ params }: { params: { id: string } },
+	request: Request,
+	{ params }: { params: Promise<{ id: string }> },
 ) => {
 	try {
-		const { id } = params;
-		const formData = await req.formData();
+		const { id } = await params;
+		const formData = await request.formData();
+		console.log("formData", formData);
 
-		const request = updatePlayerRequestSchema.parse({
+		const requestData = updatePlayerRequestSchema.parse({
 			id: Number(id),
 			firstName: formData.get("firstName"),
 			lastName: formData.get("lastName"),
@@ -22,18 +23,18 @@ export const POST = async (
 		});
 
 		let blobUrl: string | undefined = undefined;
-		if (request.file) {
+		if (requestData.file) {
 			blobUrl = await uploadToBlob({
-				firstName: request.firstName,
-				lastName: request.lastName,
-				file: request.file,
+				firstName: requestData.firstName,
+				lastName: requestData.lastName,
+				file: requestData.file,
 			});
 		}
 
 		await updatePlayer({
-			id: request.id,
-			firstName: request.firstName,
-			lastName: request.lastName,
+			id: requestData.id,
+			firstName: requestData.firstName,
+			lastName: requestData.lastName,
 			photoUrl: blobUrl,
 		});
 

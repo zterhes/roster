@@ -69,6 +69,7 @@ const PlayerFormDialog: React.FC<FormProps> = ({
 	const updateMutation = useMutation({
 		mutationFn: (data: FormValues) => {
 			if (!player) throw new Error("Player not found");
+			console.log("update1")
 
 			const request = updatePlayerRequestSchema.parse({
 				id: player.id,
@@ -76,6 +77,8 @@ const PlayerFormDialog: React.FC<FormProps> = ({
 				lastName: data.lastName,
 				file: data.file,
 			});
+			console.log("update2", request);
+
 			return updatePlayer.fn(request);
 		},
 		mutationKey: ["updatePlayer"],
