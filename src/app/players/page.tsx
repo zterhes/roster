@@ -34,7 +34,13 @@ export default function PlayersList() {
 		(player) =>
 			player.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
 			player.lastName.toLowerCase().includes(searchTerm.toLowerCase()),
-	);
+	).sort((a, b) => {
+		const lastNameComparison = a.lastName.localeCompare(b.lastName);
+	
+		return lastNameComparison !== 0 
+			? lastNameComparison 
+			: a.firstName.localeCompare(b.firstName);
+	});
 
 	return (
 		<div className="max-w-4xl mx-auto">
@@ -84,7 +90,7 @@ export default function PlayersList() {
 										alt={`${player.firstName} ${player.lastName}`}
 										width={64}
 										height={64}
-										className="rounded-full"
+										className="rounded-full w-16 h-16 min-w-[64px] min-h-[64px] max-w-[64px] max-h-[64px] object-cover"
 									/>
 									<div className="flex-grow">
 										<h2 className="text-lg font-semibold text-white">

@@ -1,14 +1,15 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
 import { Label } from "./ui/label";
 import { Input } from "./ui/input";
-import type { Player } from "@/types/Player";
+import { createPlayerRequestSchema, updatePlayerRequestSchema, type Player } from "@/types/Player";
 import { z } from "zod";
 import { useForm, Controller } from "react-hook-form";
 import { useState } from "react";
 import { Button } from "./ui/button";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Image from "next/image";
-
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { createPlayer, updatePlayer } from "../app/utils/apiService";
 
 type FormProps = {
 	isDialogOpen: boolean;
@@ -29,6 +30,8 @@ const PlayerFormDialog: React.FC<FormProps> = ({
 	setIsDialogOpen,
 	player,
 }) => {
+
+	const isEditing = !!player;
 	const { register, handleSubmit, control } = useForm<FormValues>({
 		defaultValues: player
 			? {
@@ -37,15 +40,57 @@ const PlayerFormDialog: React.FC<FormProps> = ({
 					file: undefined,
 				}
 			: undefined,
-			resolver: zodResolver(playerSchema),
+		resolver: zodResolver(playerSchema),
 	});
 
 	const [imagePreview, setImagePreview] = useState<string | undefined>(
 		player?.photoUrl,
 	);
 
+	const queryClient = useQueryClient();
+	const createMutation = useMutation({
+		mutationFn: (data: FormValues) => {
+			console.log('create', data)
+			const request = createPlayerRequestSchema.parse({
+				firstName: data.firstName,
+				lastName: data.lastName,
+				file: data.file,
+			});
+			return createPlayer.fn(request);
+		},
+		mutationKey: ["createPlayer"],
+		onSuccess: () => {
+			console.log('success')
+			queryClient.invalidateQueries({ queryKey: ["fetchPlayers"] });
+			setIsDialogOpen(false);
+		},
+	});
+
+	const updateMutation = useMutation({
+		mutationFn: (data: FormValues) => {
+			if (!player) throw new Error("Player not found");
+
+			const request = updatePlayerRequestSchema.parse({
+				id: player.id,
+				firstName: data.firstName,
+				lastName: data.lastName,
+				file: data.file,
+			});
+			return updatePlayer.fn(request);
+		},
+		mutationKey: ["updatePlayer"],
+		onSuccess: () => {
+			console.log('success')
+			queryClient.invalidateQueries({ queryKey: ["fetchPlayers"] });
+			setIsDialogOpen(false);
+
+		},
+	})
+
 	const onSubmit = (data: FormValues) => {
-		console.log("Form Data:", data);
+		console.log('onsub')
+		if (isEditing) updateMutation.mutate(data);
+		createMutation.mutate(data);
 	};
 
 	const handleFileChange = (file: File | null) => {
@@ -63,7 +108,7 @@ const PlayerFormDialog: React.FC<FormProps> = ({
 			<DialogContent className="bg-[#0F1C26] border-[#193549] text-white">
 				<DialogHeader>
 					<DialogTitle className="text-[#00A3FF]">
-						{player ? "Edit Player" : "Add New Player"}
+						{isEditing ? "Edit Player" : "Add New Player"}
 					</DialogTitle>
 				</DialogHeader>
 				<form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -76,6 +121,7 @@ const PlayerFormDialog: React.FC<FormProps> = ({
 									<Image
 										width={100}
 										height={100}
+										//TODO change this to blobs default!
 										src={imagePreview || "/placeholder-image.png"}
 										alt="Player"
 										className="rounded-full object-cover cursor-pointer"

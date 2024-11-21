@@ -2,7 +2,12 @@ import {
 	ClientServerCallError,
 	ClientServerCallErrorType,
 } from "@/types/Errors";
-import { playerSchema } from "@/types/Player";
+import {
+	type CreatePlayerRequest,
+	createPlayerResponseSchema,
+	playerSchema,
+	type UpdatePlayerRequest,
+} from "@/types/Player";
 import axios from "axios";
 import axiosRetry from "axios-retry";
 import { ZodError } from "zod";
@@ -33,6 +38,67 @@ export const fetchPlayers = {
 		}
 	},
 	key: "fetchPlayers",
+};
+
+export const createPlayer = {
+	fn: async (request: CreatePlayerRequest) => {
+		console.log("SERVICE");
+
+		const formData = buildPlayerFormData(request);
+		console.log("SERVICE");
+
+		try {
+			const response = await axios({
+				method: "post",
+				url: "/api/player",
+				data: formData,
+				headers: {
+					"Content-Type": "multipart/form-data",
+				},
+			});
+			return createPlayerResponseSchema.parse(response.data);
+		} catch (error) {
+			handleError(error);
+		}
+	},
+	key: "createPlayer",
+};
+
+export const updatePlayer = {
+	fn: async (request: UpdatePlayerRequest) => {
+		const formData = buildPlayerFormData({
+			firstName: request.firstName,
+			lastName: request.lastName,
+			file: request.file,
+		});
+		console.log("SERVICE");
+
+		try {
+			const response = await axios({
+				method: "put",
+				url: `/api/player/${request.id}`,
+				data: formData,
+				headers: {
+					"Content-Type": "multipart/form-data",
+				},
+			});
+			console.log("response", response.data);
+			return createPlayerResponseSchema.parse(response.data);
+		} catch (error) {
+			handleError(error);
+		}
+	},
+	key: "updatePlayer",
+};
+
+const buildPlayerFormData = (request: CreatePlayerRequest) => {
+	const formData = new FormData();
+	formData.append("firstName", request.firstName);
+	formData.append("lastName", request.lastName);
+	if (request.file) {
+		formData.append("file", request.file);
+	}
+	return formData;
 };
 
 const handleError = (error: unknown) => {

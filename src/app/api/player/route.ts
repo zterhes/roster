@@ -30,21 +30,29 @@ export const POST = async (req: NextRequest) => {
 
 		return NextResponse.json({ userId: createResult.id }, { status: 200 });
 	} catch (error) {
-		console.error(error);
-		if (error instanceof PersistationError) {
-			return NextResponse.json({ status: 400, error: error.message });
-		}
-		if (error instanceof ZodError) {
-			return NextResponse.json({
-				status: 400,
-				error: error.message.toString(),
-			});
-		}
-		return NextResponse.json({ status: 500 });
+		return handleError(error);
 	}
 };
 
 export const GET = async () => {
-	const result = await getAllPlayers();
-	return NextResponse.json(result, { status: 200 });
+	try {
+		const result = await getAllPlayers();
+		return NextResponse.json(result, { status: 200 });
+	} catch (error) {
+		return handleError(error);
+	}
+};
+
+const handleError = (error: unknown) => {
+	console.error(error);
+	if (error instanceof PersistationError) {
+		return NextResponse.json({ status: 400, error: error.message });
+	}
+	if (error instanceof ZodError) {
+		return NextResponse.json({
+			status: 400,
+			error: error.message.toString(),
+		});
+	}
+	return NextResponse.json({ status: 500 });
 };

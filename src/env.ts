@@ -1,4 +1,7 @@
 import { z } from "zod";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const envSchema = z.object({
 	NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: z.string(),
@@ -8,12 +11,6 @@ const envSchema = z.object({
 	DEFAULT_IMAGE_URL: z.string(),
 });
 
-const ParsedEnv = envSchema.safeParse(process.env);
-
-if (!ParsedEnv.success) {
-    throw new Error("Invalid environment variables");
-}
-
-const env = ParsedEnv.data;
+const env = envSchema.parse(process.env);
 
 export default env;
