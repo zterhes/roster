@@ -1,4 +1,4 @@
-import { Home, CalendarPlus, Users } from "lucide-react";
+import { Home, CalendarPlus, Users, Image as ImageIcon } from "lucide-react";
 
 import {
 	Sidebar,
@@ -33,6 +33,11 @@ const items = [
 		url: "/players",
 		icon: Users,
 	},
+	{
+		title: "Default Images",
+		url: "/api/upload/default-images",
+		icon: ImageIcon,
+	},
 ];
 
 export function AppSidebar() {
@@ -49,7 +54,10 @@ export function AppSidebar() {
 						<SidebarMenu>
 							{items.map((item) => (
 								<SidebarMenuItem key={item.title}>
-									<SidebarMenuButton asChild className="hover:bg-[#00A3FF] hover:scale-105 transition-all duration-200 ease-in-out ">
+									<SidebarMenuButton
+										asChild
+										className="hover:bg-[#00A3FF] hover:scale-105 transition-all duration-200 ease-in-out "
+									>
 										<a href={item.url}>
 											<item.icon className="text-white" />
 											<span className="text-white ">{item.title}</span>
