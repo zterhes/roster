@@ -29,3 +29,15 @@ export enum ClientServerCallErrorType {
 	AxiosError = "AxiosError",
 	UnknownError = "UnknownError",
 }
+
+export class AuthError extends Error {
+	type: AuthErrorType;
+
+	constructor(type: AuthErrorType, message: string) {
+		super(message);
+		this.type = type;
+	}
+}
+export enum AuthErrorType {
+	Unauthorized = "Unauthorized",
+}

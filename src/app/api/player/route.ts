@@ -1,13 +1,16 @@
 import { createPlayer, getAllPlayers } from "@/db";
 import env from "@/env";
-import { PersistationError } from "@/types/Errors";
 import { createPlayerRequestSchema } from "@/types/Player";
 import { type NextRequest, NextResponse } from "next/server";
-import { ZodError } from "zod";
 import { uploadToBlob } from "../utils/blob";
+import { handleError } from "@/lib/utils";
+import { handleAuth } from "../utils/auth";
+import { clerkClient } from "@clerk/nextjs/server";
+import { currentUser } from "@clerk/nextjs/server";
 
 export const POST = async (req: NextRequest) => {
 	try {
+		await handleAuth();
 		const formData = await req.formData();
 
 		const { firstName, lastName, file } = createPlayerRequestSchema.parse({
@@ -17,7 +20,6 @@ export const POST = async (req: NextRequest) => {
 		});
 
 		let blobUrl: string = env.DEFAULT_IMAGE_URL;
-
 		if (file) {
 			blobUrl = await uploadToBlob({
 				firstName,
@@ -36,23 +38,10 @@ export const POST = async (req: NextRequest) => {
 
 export const GET = async () => {
 	try {
+		await handleAuth();
 		const result = await getAllPlayers();
 		return NextResponse.json(result, { status: 200 });
 	} catch (error) {
 		return handleError(error);
 	}
-};
-
-const handleError = (error: unknown) => {
-	console.error(error);
-	if (error instanceof PersistationError) {
-		return NextResponse.json({ status: 400, error: error.message });
-	}
-	if (error instanceof ZodError) {
-		return NextResponse.json({
-			status: 400,
-			error: error.message.toString(),
-		});
-	}
-	return NextResponse.json({ status: 500 });
 };
