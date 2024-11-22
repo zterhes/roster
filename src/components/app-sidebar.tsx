@@ -35,7 +35,7 @@ const items = [
 	},
 	{
 		title: "Default Images",
-		url: "/api/upload/default-images",
+		url: "/upload/default-images",
 		icon: ImageIcon,
 	},
 ];
