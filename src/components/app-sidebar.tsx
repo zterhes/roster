@@ -48,11 +48,11 @@ export function AppSidebar() {
 					<SidebarGroupContent>
 						<SidebarMenu>
 							{items.map((item) => (
-								<SidebarMenuItem key={item.title} className="hover:text-black">
-									<SidebarMenuButton asChild>
+								<SidebarMenuItem key={item.title}>
+									<SidebarMenuButton asChild className="hover:bg-[#00A3FF] hover:scale-105 transition-all duration-200 ease-in-out ">
 										<a href={item.url}>
-											<item.icon className="text-white hover:text-black" />
-											<span className="text-white">{item.title}</span>
+											<item.icon className="text-white" />
+											<span className="text-white ">{item.title}</span>
 										</a>
 									</SidebarMenuButton>
 								</SidebarMenuItem>
