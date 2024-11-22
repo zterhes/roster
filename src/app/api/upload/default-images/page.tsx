@@ -8,7 +8,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { fileSchema, imageSchema } from "@/types/File";
-import { ZodError } from "zod";
 
 interface ImageUploadProps {
 	file: File | null;
@@ -45,33 +44,39 @@ export default function DefaultImagesPage() {
 		isValid: false,
 	});
 
+	const getAspectStyle = (width: number, height: number) => ({
+		aspectRatio: `${width}/${height}`,
+	});
+
+	const getConstraints = (type: ImageType) => {
+		return {
+			minWidth: validImageSizes[type as keyof typeof validImageSizes].width,
+			minHeight: validImageSizes[type as keyof typeof validImageSizes].height,
+		};
+	};
+
 	const validateImage = async (
 		file: File,
 		type: ImageType,
 	): Promise<boolean> => {
-		const img = await createImageFromFile(file);
 		try {
 			if (type === ImageType.Player) {
 				fileSchema.parse(file);
-			} else {
-				imageSchema.parse({
-					file,
-					dimensions: {
-						width: img.width,
-						height: img.height,
-					},
-					constraints: validImageSizes[type],
-				});
+				return true;
 			}
+
+			const img = await createImageFromFile(file);
+			imageSchema.parse({
+				file,
+				dimensions: {
+					width: img.width,
+					height: img.height,
+				},
+				constraints: getConstraints(type),
+			});
 			return true;
 		} catch (error) {
-			if (error instanceof ZodError) {
-				toast({
-					variant: "destructive",
-					title: "Validation Error",
-					description: error.errors[0].message,
-				});
-			}
+			console.error("error", error);
 			return false;
 		}
 	};
@@ -88,10 +93,8 @@ export default function DefaultImagesPage() {
 	};
 
 	const handleImageUpload = async (file: File, type: ImageType) => {
-		console.log("handle: ", { file, type });
 		const isValid = await validateImage(file, type);
 		const preview = URL.createObjectURL(file);
-		console.log("isValid", isValid);
 		if (!isValid) {
 			toast({
 				variant: "destructive",
@@ -115,12 +118,19 @@ export default function DefaultImagesPage() {
 		}
 	};
 
+	const handleUploadAllImages = () => {
+		console.log("uploading all images");
+	};
+
 	return (
 		<div className="min-h-screen  p-6">
 			<div className="mx-auto max-w-4xl space-y-6">
 				<div className="flex items-center justify-between">
 					<h1 className="text-3xl font-bold text-white">Default Images</h1>
-					<Button className="bg-[#00A3FF] hover:bg-[#00A3FF]/90">
+					<Button
+						className="bg-[#00A3FF] hover:bg-[#00A3FF]/90"
+						onClick={handleUploadAllImages}
+					>
 						<Upload className="mr-2 h-4 w-4" />
 						Upload All Images
 					</Button>
@@ -134,7 +144,11 @@ export default function DefaultImagesPage() {
 						<CardContent>
 							<div className="space-y-4">
 								<div
-									className={`aspect-[${validImageSizes.feed.width}/${validImageSizes.feed.height}] overflow-hidden rounded-lg border-2 border-dashed border-gray-600`}
+									className="overflow-hidden rounded-lg border-2 border-dashed border-gray-600"
+									style={getAspectStyle(
+										validImageSizes.feed.width,
+										validImageSizes.feed.height,
+									)}
 								>
 									{feedImage.preview ? (
 										<img
@@ -177,7 +191,11 @@ export default function DefaultImagesPage() {
 						<CardContent>
 							<div className="space-y-4">
 								<div
-									className={`aspect-[${validImageSizes.story.width}/${validImageSizes.story.height}] overflow-hidden rounded-lg border-2 border-dashed border-gray-600`}
+									className="overflow-hidden rounded-lg border-2 border-dashed border-gray-600"
+									style={getAspectStyle(
+										validImageSizes.story.width,
+										validImageSizes.story.height,
+									)}
 								>
 									{storyImage.preview ? (
 										<img

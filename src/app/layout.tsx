@@ -12,6 +12,7 @@ import { AppSidebar } from "@/components/app-sidebar";
 import { useState } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { dark } from "@clerk/themes";
+import { Toaster } from "@/components/ui/toaster";
 
 const queryClient = new QueryClient();
 
@@ -47,6 +48,7 @@ export default function RootLayout({
 										<SidebarTrigger />
 										{children}
 									</main>
+									<Toaster />
 								</SidebarProvider>
 							</div>
 						</SignedIn>
