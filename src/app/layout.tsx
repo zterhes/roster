@@ -11,7 +11,7 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
 import { useState } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { dark, neobrutalism } from "@clerk/themes";
+import { dark } from "@clerk/themes";
 
 const queryClient = new QueryClient();
 
