@@ -11,6 +11,7 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
 import { useState } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { dark, neobrutalism } from "@clerk/themes";
 
 const queryClient = new QueryClient();
 
@@ -23,7 +24,12 @@ export default function RootLayout({
 		<html lang="en">
 			<body>
 				<QueryClientProvider client={queryClient}>
-					<ClerkProvider>
+					<ClerkProvider
+						appearance={{
+							baseTheme: dark,
+							signIn: { baseTheme: dark },
+						}}
+					>
 						<SignedIn>
 							<div
 								className="min-h-screen bg-[#0A1219] text-white p-8"
