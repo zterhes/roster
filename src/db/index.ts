@@ -6,28 +6,16 @@ import type { UpdatePlayerDto } from "@/types/Player";
 
 const db = drizzle();
 
-export const createPlayer = async (
-	firstName: string,
-	lastName: string,
-	photoUrl: string,
-): Promise<{ id: number }> => {
-	const result = await db
-		.insert(playersTable)
-		.values({ firstName, lastName, photoUrl })
-		.returning({
-			id: playersTable.id,
-		});
+export const createPlayer = async (firstName: string, lastName: string, photoUrl: string): Promise<{ id: number }> => {
+	const result = await db.insert(playersTable).values({ firstName, lastName, photoUrl }).returning({
+		id: playersTable.id,
+	});
 	if (result[0].id == null)
-		throw new PersistationError(
-			PersistationErrorType.FailedToCreateUser,
-			"Failed to create user",
-		);
+		throw new PersistationError(PersistationErrorType.FailedToCreateUser, "Failed to create user");
 	return result[0];
 };
 
-export const updatePlayer = async (
-	player: UpdatePlayerDto,
-): Promise<{ id: number }> => {
+export const updatePlayer = async (player: UpdatePlayerDto): Promise<{ id: number }> => {
 	const result = await db
 		.update(playersTable)
 		.set({
@@ -40,10 +28,7 @@ export const updatePlayer = async (
 			id: playersTable.id,
 		});
 	if (result[0].id == null)
-		throw new PersistationError(
-			PersistationErrorType.FailedToCreateUser,
-			"Failed to create user",
-		);
+		throw new PersistationError(PersistationErrorType.FailedToCreateUser, "Failed to create user");
 	return result[0];
 };
 

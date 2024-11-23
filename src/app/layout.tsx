@@ -1,11 +1,6 @@
 "use client";
 
-import {
-	ClerkProvider,
-	RedirectToSignIn,
-	SignedIn,
-	SignedOut,
-} from "@clerk/nextjs";
+import { ClerkProvider, RedirectToSignIn, SignedIn, SignedOut } from "@clerk/nextjs";
 import "./globals.css";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
@@ -16,9 +11,7 @@ import { Toaster } from "@/components/ui/toaster";
 
 const queryClient = new QueryClient();
 
-export default function RootLayout({
-	children,
-}: { children: React.ReactNode }) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
 	const [sidebarIsopen, setSidebarIsopen] = useState(true);
 
 	return (
@@ -39,10 +32,7 @@ export default function RootLayout({
 									backgroundSize: "56px 100px",
 								}}
 							>
-								<SidebarProvider
-									open={sidebarIsopen}
-									onOpenChange={setSidebarIsopen}
-								>
+								<SidebarProvider open={sidebarIsopen} onOpenChange={setSidebarIsopen}>
 									<AppSidebar />
 									<main>
 										<SidebarTrigger />

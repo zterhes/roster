@@ -7,10 +7,7 @@ import { PersistationError } from "@/types/Errors";
 import { uploadToBlob } from "../../utils/blob";
 import { handleAuth } from "../../utils/auth";
 
-export const POST = async (
-	request: Request,
-	{ params }: { params: Promise<{ id: string }> },
-) => {
+export const POST = async (request: Request, { params }: { params: Promise<{ id: string }> }) => {
 	try {
 		await handleAuth();
 		const { id } = await params;

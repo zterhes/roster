@@ -1,7 +1,4 @@
-import {
-	ClientServerCallError,
-	ClientServerCallErrorType,
-} from "@/types/Errors";
+import { ClientServerCallError, ClientServerCallErrorType } from "@/types/Errors";
 import {
 	type CreatePlayerRequest,
 	createPlayerResponseSchema,
@@ -103,24 +100,12 @@ const buildPlayerFormData = (request: CreatePlayerRequest) => {
 const handleError = (error: unknown, route: string) => {
 	if (error instanceof ZodError) {
 		console.error(error);
-		return new ClientServerCallError(
-			ClientServerCallErrorType.ValidationError,
-			route,
-			error.message,
-		);
+		return new ClientServerCallError(ClientServerCallErrorType.ValidationError, route, error.message);
 	}
 	if (axios.isAxiosError(error)) {
 		console.error(error);
-		return new ClientServerCallError(
-			ClientServerCallErrorType.AxiosError,
-			route,
-			error.message,
-		);
+		return new ClientServerCallError(ClientServerCallErrorType.AxiosError, route, error.message);
 	}
 	console.error(error);
-	return new ClientServerCallError(
-		ClientServerCallErrorType.UnknownError,
-		route,
-		(error as Error).message,
-	);
+	return new ClientServerCallError(ClientServerCallErrorType.UnknownError, route, (error as Error).message);
 };

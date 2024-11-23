@@ -3,10 +3,7 @@ import { z } from "zod";
 export const fileSchema = z
 	.instanceof(File)
 	.refine((file) => file !== null, "File is required")
-	.refine(
-		(file) => file.size <= 4.5 * 1024 * 1024,
-		"File size must be less than 4.5 MB",
-	)
+	.refine((file) => file.size <= 4.5 * 1024 * 1024, "File size must be less than 4.5 MB")
 	.refine(
 		(file) => ["image/jpeg", "image/png", "image/webp"].includes(file.type),
 		"File type must be image/jpeg, image/png, or image/webp",

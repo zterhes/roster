@@ -55,10 +55,7 @@ export default function DefaultImagesPage() {
 		};
 	};
 
-	const validateImage = async (
-		file: File,
-		type: ImageType,
-	): Promise<boolean> => {
+	const validateImage = async (file: File, type: ImageType): Promise<boolean> => {
 		try {
 			if (type === ImageType.Player) {
 				fileSchema.parse(file);
@@ -99,8 +96,7 @@ export default function DefaultImagesPage() {
 			toast({
 				variant: "destructive",
 				title: "Invalid image",
-				description:
-					"Please ensure the image meets the required dimensions and is under 4.5MB",
+				description: "Please ensure the image meets the required dimensions and is under 4.5MB",
 			});
 			return;
 		}
@@ -127,10 +123,7 @@ export default function DefaultImagesPage() {
 			<div className="mx-auto max-w-4xl space-y-6">
 				<div className="flex items-center justify-between">
 					<h1 className="text-3xl font-bold text-white">Default Images</h1>
-					<Button
-						className="bg-[#00A3FF] hover:bg-[#00A3FF]/90"
-						onClick={handleUploadAllImages}
-					>
+					<Button className="bg-[#00A3FF] hover:bg-[#00A3FF]/90" onClick={handleUploadAllImages}>
 						<Upload className="mr-2 h-4 w-4" />
 						Upload All Images
 					</Button>
@@ -145,22 +138,14 @@ export default function DefaultImagesPage() {
 							<div className="space-y-4">
 								<div
 									className="overflow-hidden rounded-lg border-2 border-dashed border-gray-600"
-									style={getAspectStyle(
-										validImageSizes.feed.width,
-										validImageSizes.feed.height,
-									)}
+									style={getAspectStyle(validImageSizes.feed.width, validImageSizes.feed.height)}
 								>
 									{feedImage.preview ? (
-										<img
-											src={feedImage.preview}
-											alt="Feed preview"
-											className="h-full w-full object-cover"
-										/>
+										<img src={feedImage.preview} alt="Feed preview" className="h-full w-full object-cover" />
 									) : (
 										<div className="flex h-full items-center justify-center">
 											<p className="text-sm text-gray-400">
-												{validImageSizes.feed.width} x{" "}
-												{validImageSizes.feed.height}
+												{validImageSizes.feed.width} x {validImageSizes.feed.height}
 											</p>
 										</div>
 									)}
@@ -192,22 +177,14 @@ export default function DefaultImagesPage() {
 							<div className="space-y-4">
 								<div
 									className="overflow-hidden rounded-lg border-2 border-dashed border-gray-600"
-									style={getAspectStyle(
-										validImageSizes.story.width,
-										validImageSizes.story.height,
-									)}
+									style={getAspectStyle(validImageSizes.story.width, validImageSizes.story.height)}
 								>
 									{storyImage.preview ? (
-										<img
-											src={storyImage.preview}
-											alt="Story preview"
-											className="h-full w-full object-cover"
-										/>
+										<img src={storyImage.preview} alt="Story preview" className="h-full w-full object-cover" />
 									) : (
 										<div className="flex h-full items-center justify-center">
 											<p className="text-sm text-gray-400">
-												{validImageSizes.story.width} x{" "}
-												{validImageSizes.story.height}
+												{validImageSizes.story.width} x {validImageSizes.story.height}
 											</p>
 										</div>
 									)}
@@ -239,16 +216,10 @@ export default function DefaultImagesPage() {
 							<div className="space-y-4">
 								<div className="aspect-square overflow-hidden rounded-lg border-2 border-dashed border-gray-600">
 									{playerImage.preview ? (
-										<img
-											src={playerImage.preview}
-											alt="Player preview"
-											className="h-full w-full object-cover"
-										/>
+										<img src={playerImage.preview} alt="Player preview" className="h-full w-full object-cover" />
 									) : (
 										<div className="flex h-full items-center justify-center">
-											<p className="text-sm text-gray-400">
-												Upload player image
-											</p>
+											<p className="text-sm text-gray-400">Upload player image</p>
 										</div>
 									)}
 								</div>

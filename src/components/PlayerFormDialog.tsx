@@ -30,11 +30,7 @@ const playerSchema = z.object({
 
 type FormValues = z.infer<typeof playerSchema>;
 
-const PlayerFormDialog: React.FC<FormProps> = ({
-	isDialogOpen,
-	setIsDialogOpen,
-	player,
-}) => {
+const PlayerFormDialog: React.FC<FormProps> = ({ isDialogOpen, setIsDialogOpen, player }) => {
 	const isEditing = !!player;
 	const { register, handleSubmit, control } = useForm<FormValues>({
 		defaultValues: player
@@ -47,9 +43,7 @@ const PlayerFormDialog: React.FC<FormProps> = ({
 		resolver: zodResolver(playerSchema),
 	});
 
-	const [imagePreview, setImagePreview] = useState<string | undefined>(
-		player?.photoUrl,
-	);
+	const [imagePreview, setImagePreview] = useState<string | undefined>(player?.photoUrl);
 
 	const queryClient = useQueryClient();
 	const createMutation = useMutation({
@@ -113,9 +107,7 @@ const PlayerFormDialog: React.FC<FormProps> = ({
 		<Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
 			<DialogContent className="bg-[#0F1C26] border-[#193549] text-white">
 				<DialogHeader>
-					<DialogTitle className="text-[#00A3FF]">
-						{isEditing ? "Edit Player" : "Add New Player"}
-					</DialogTitle>
+					<DialogTitle className="text-[#00A3FF]">{isEditing ? "Edit Player" : "Add New Player"}</DialogTitle>
 				</DialogHeader>
 				<form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
 					<div className="space-y-2">
@@ -174,14 +166,10 @@ const PlayerFormDialog: React.FC<FormProps> = ({
 					<Button
 						type="submit"
 						className={
-							updateMutation.isError
-								? "w-full bg-red-500"
-								: "w-full bg-[#00A3FF] hover:bg-[#0077CC] text-white"
+							updateMutation.isError ? "w-full bg-red-500" : "w-full bg-[#00A3FF] hover:bg-[#0077CC] text-white"
 						}
 					>
-						{updateMutation.isError
-							? "Something went wrong! Try again, or contact developers"
-							: "Save Profile"}
+						{updateMutation.isError ? "Something went wrong! Try again, or contact developers" : "Save Profile"}
 					</Button>
 				</form>
 			</DialogContent>

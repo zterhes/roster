@@ -8,18 +8,11 @@ type Blob = {
 };
 
 export const uploadToBlob = async (request: Blob) => {
-	const blob = await put(
-		`${request.firstName}_${request.lastName}`,
-		request.file,
-		{
-			access: "public",
-		},
-	);
+	const blob = await put(`${request.firstName}_${request.lastName}`, request.file, {
+		access: "public",
+	});
 	if (!blob) {
-		throw new PersistationError(
-			PersistationErrorType.BlobError,
-			"Failed to upload file to blob",
-		);
+		throw new PersistationError(PersistationErrorType.BlobError, "Failed to upload file to blob");
 	}
 
 	return blob.url;
