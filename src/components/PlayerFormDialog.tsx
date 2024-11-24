@@ -9,12 +9,13 @@ import {
 } from "@/types/Player";
 import { z } from "zod";
 import { useForm, Controller } from "react-hook-form";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "./ui/button";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Image from "next/image";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createPlayer, updatePlayer } from "../app/utils/apiService";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { createPlayer, fetchDefaultImages, fetchPlayers, updatePlayer } from "../app/utils/apiService";
+import { toast } from "@/hooks/use-toast";
 
 type FormProps = {
 	isDialogOpen: boolean;
@@ -30,11 +31,7 @@ const playerSchema = z.object({
 
 type FormValues = z.infer<typeof playerSchema>;
 
-const PlayerFormDialog: React.FC<FormProps> = ({
-	isDialogOpen,
-	setIsDialogOpen,
-	player,
-}) => {
+const PlayerFormDialog: React.FC<FormProps> = ({ isDialogOpen, setIsDialogOpen, player }) => {
 	const isEditing = !!player;
 	const { register, handleSubmit, control } = useForm<FormValues>({
 		defaultValues: player
@@ -47,9 +44,20 @@ const PlayerFormDialog: React.FC<FormProps> = ({
 		resolver: zodResolver(playerSchema),
 	});
 
-	const [imagePreview, setImagePreview] = useState<string | undefined>(
-		player?.photoUrl,
-	);
+	const [defaultPlayerImage, setDefaultPlayerImage] = useState("");
+
+	const { data: defaultImages } = useQuery({
+		queryKey: [fetchDefaultImages.key],
+		queryFn: () => fetchDefaultImages.fn(),
+	});
+
+	useEffect(() => {
+		if (defaultImages) {
+			setDefaultPlayerImage(defaultImages.player);
+		}
+	}, [defaultImages]);
+
+	const [imagePreview, setImagePreview] = useState<string | undefined>(player?.photoUrl);
 
 	const queryClient = useQueryClient();
 	const createMutation = useMutation({
@@ -61,14 +69,22 @@ const PlayerFormDialog: React.FC<FormProps> = ({
 			});
 			return createPlayer.fn(request);
 		},
-		mutationKey: ["createPlayer"],
+		mutationKey: [createPlayer.key],
 		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ["fetchPlayers"] });
+			queryClient.invalidateQueries({ queryKey: [fetchPlayers.key] });
 			setIsDialogOpen(false);
+			toast({
+				title: "Player created",
+				description: "The player has been created successfully",
+			});
 		},
 		onError: (error) => {
 			console.error("error", error);
-			alert("Error creating player");
+			toast({
+				variant: "destructive",
+				title: "Error creating player",
+				description: "An error occurred while creating the player. Please try again or contact support.",
+			});
 		},
 	});
 
@@ -86,11 +102,15 @@ const PlayerFormDialog: React.FC<FormProps> = ({
 		},
 		mutationKey: ["updatePlayer"],
 		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ["fetchPlayers"] });
+			queryClient.invalidateQueries({ queryKey: [fetchPlayers.key] });
 			setIsDialogOpen(false);
 		},
 		onError: () => {
-			alert("Error updating player");
+			toast({
+				variant: "destructive",
+				title: "Error updating player",
+				description: "An error occurred while updating the player. Please try again or contact support.",
+			});
 		},
 	});
 
@@ -113,9 +133,7 @@ const PlayerFormDialog: React.FC<FormProps> = ({
 		<Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
 			<DialogContent className="bg-[#0F1C26] border-[#193549] text-white">
 				<DialogHeader>
-					<DialogTitle className="text-[#00A3FF]">
-						{isEditing ? "Edit Player" : "Add New Player"}
-					</DialogTitle>
+					<DialogTitle className="text-[#00A3FF]">{isEditing ? "Edit Player" : "Add New Player"}</DialogTitle>
 				</DialogHeader>
 				<form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
 					<div className="space-y-2">
@@ -127,8 +145,7 @@ const PlayerFormDialog: React.FC<FormProps> = ({
 									<Image
 										width={100}
 										height={100}
-										//TODO change this to blobs default!
-										src={imagePreview || "/placeholder-image.png"}
+										src={imagePreview || defaultPlayerImage}
 										alt="Player"
 										className="rounded-full object-cover cursor-pointer"
 										onClick={() => document.getElementById("photo")?.click()}
@@ -174,14 +191,10 @@ const PlayerFormDialog: React.FC<FormProps> = ({
 					<Button
 						type="submit"
 						className={
-							updateMutation.isError
-								? "w-full bg-red-500"
-								: "w-full bg-[#00A3FF] hover:bg-[#0077CC] text-white"
+							updateMutation.isError ? "w-full bg-red-500" : "w-full bg-[#00A3FF] hover:bg-[#0077CC] text-white"
 						}
 					>
-						{updateMutation.isError
-							? "Something went wrong! Try again, or contact developers"
-							: "Save Profile"}
+						{updateMutation.isError ? "Something went wrong! Try again, or contact developers" : "Save Profile"}
 					</Button>
 				</form>
 			</DialogContent>

@@ -5,12 +5,11 @@ import { updatePlayer } from "@/db";
 
 import { PersistationError } from "@/types/Errors";
 import { uploadToBlob } from "../../utils/blob";
+import { handleAuth } from "../../utils/auth";
 
-export const POST = async (
-	request: Request,
-	{ params }: { params: Promise<{ id: string }> },
-) => {
+export const POST = async (request: Request, { params }: { params: Promise<{ id: string }> }) => {
 	try {
+		await handleAuth();
 		const { id } = await params;
 		const formData = await request.formData();
 
@@ -24,8 +23,7 @@ export const POST = async (
 		let blobUrl: string | undefined = undefined;
 		if (requestData.file) {
 			blobUrl = await uploadToBlob({
-				firstName: requestData.firstName,
-				lastName: requestData.lastName,
+				fileName: `${requestData.firstName}_${requestData.lastName}`,
 				file: requestData.file,
 			});
 		}

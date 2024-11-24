@@ -8,9 +8,10 @@ export class PersistationError extends Error {
 }
 
 export enum PersistationErrorType {
-	FailedToCreateUser = "FailedToCreateUser",
-	UpdateUser = "UpdateUser",
+	CreateError = "CreateError",
+	UpdateError = "UpdateError",
 	BlobError = "BlobError",
+	NotFound = "NotFound",
 }
 
 export class ClientServerCallError extends Error {
@@ -28,4 +29,17 @@ export enum ClientServerCallErrorType {
 	ValidationError = "ValidationError",
 	AxiosError = "AxiosError",
 	UnknownError = "UnknownError",
+}
+
+export class AuthError extends Error {
+	type: AuthErrorType;
+
+	constructor(type: AuthErrorType, message: string) {
+		super(message);
+		this.type = type;
+	}
+}
+export enum AuthErrorType {
+	Unauthorized = "Unauthorized",
+	NoOrganization = "NoOrganization",
 }

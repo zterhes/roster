@@ -14,11 +14,9 @@ import { fetchPlayers } from "../utils/apiService";
 export default function PlayersList() {
 	const [isDialogOpen, setIsDialogOpen] = useState(false);
 	const [searchTerm, setSearchTerm] = useState("");
-	const [editingPlayer, setEditingPlayer] = useState<Player | undefined>(
-		undefined,
-	);
+	const [editingPlayer, setEditingPlayer] = useState<Player | undefined>(undefined);
 
-	const { data, error, isLoading} = useQuery({
+	const { data, error, isLoading } = useQuery({
 		queryKey: [fetchPlayers.key],
 		queryFn: () => fetchPlayers.fn(),
 	});
@@ -28,19 +26,19 @@ export default function PlayersList() {
 		setIsDialogOpen(true);
 	};
 
-//TODO: handle filtered players init on success
+	//TODO: handle filtered players init on success
 
-	const filteredPlayers = data?.filter(
-		(player) =>
-			player.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-			player.lastName.toLowerCase().includes(searchTerm.toLowerCase()),
-	).sort((a, b) => {
-		const lastNameComparison = a.lastName.localeCompare(b.lastName);
-	
-		return lastNameComparison !== 0 
-			? lastNameComparison 
-			: a.firstName.localeCompare(b.firstName);
-	});
+	const filteredPlayers = data
+		?.filter(
+			(player) =>
+				player.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+				player.lastName.toLowerCase().includes(searchTerm.toLowerCase()),
+		)
+		.sort((a, b) => {
+			const lastNameComparison = a.lastName.localeCompare(b.lastName);
+
+			return lastNameComparison !== 0 ? lastNameComparison : a.firstName.localeCompare(b.firstName);
+		});
 
 	return (
 		<div className="max-w-4xl mx-auto">
@@ -48,19 +46,12 @@ export default function PlayersList() {
 				<div className="flex items-center space-x-4">
 					<h1 className="text-3xl font-bold">Players</h1>
 				</div>
-				<Button
-					className="bg-[#00A3FF] hover:bg-[#0077CC] text-white"
-					onClick={() => handleDialogOpen()}
-				>
+				<Button className="bg-[#00A3FF] hover:bg-[#0077CC] text-white" onClick={() => handleDialogOpen()}>
 					<UserPlus className="mr-2 h-4 w-4" /> Add New Player
 				</Button>
 			</div>
 			{isDialogOpen && (
-				<PlayerFormDialog
-					isDialogOpen={isDialogOpen}
-					setIsDialogOpen={setIsDialogOpen}
-					player={editingPlayer}
-				/>
+				<PlayerFormDialog isDialogOpen={isDialogOpen} setIsDialogOpen={setIsDialogOpen} player={editingPlayer} />
 			)}
 
 			<Card className="bg-[#0F1C26] border-[#193549] mb-8">
@@ -114,25 +105,17 @@ export default function PlayersList() {
 					))}
 			</div>
 
-			{isLoading&& (
+			{isLoading && (
 				<div className="flex justify-center mt-8">
 					<Loader2 className="animate-spin mr-2" />
-					<p className="text-center text-gray-400 mt-8">
-					Loading players...
-				</p>
+					<p className="text-center text-gray-400 mt-8">Loading players...</p>
 				</div>
 			)}
 
-			{error && (
-				<p className="text-center text-gray-400 mt-8">
-					Something went wrong. Please try again.
-				</p>
-			)}
+			{error && <p className="text-center text-gray-400 mt-8">Something went wrong. Please try again.</p>}
 
 			{filteredPlayers?.length === 0 && (
-				<p className="text-center text-gray-400 mt-8">
-					No players found matching your search.
-				</p>
+				<p className="text-center text-gray-400 mt-8">No players found matching your search.</p>
 			)}
 		</div>
 	);
