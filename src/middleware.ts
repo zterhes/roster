@@ -20,6 +20,7 @@ export default clerkMiddleware(async (auth, req) => {
 	if (fronendRoutes(req.nextUrl.pathname) && organizations.totalCount < 1) {
 		return NextResponse.redirect(new URL("/no-organisation", req.url));
 	}
+	return NextResponse.next();
 });
 
 export const config = {
