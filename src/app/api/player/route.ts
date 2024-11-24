@@ -5,8 +5,6 @@ import { type NextRequest, NextResponse } from "next/server";
 import { uploadToBlob } from "../utils/blob";
 import { handleError } from "@/lib/utils";
 import { handleAuth } from "../utils/auth";
-import { clerkClient } from "@clerk/nextjs/server";
-import { currentUser } from "@clerk/nextjs/server";
 
 export const POST = async (req: NextRequest) => {
 	try {
