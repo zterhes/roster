@@ -1,14 +1,14 @@
 import { PersistationError, PersistationErrorType } from "@/types/Errors";
-import { put } from "@vercel/blob";
+import { del, put } from "@vercel/blob";
 
 type Blob = {
-	firstName: string;
-	lastName: string;
+	fileName: string;
 	file: File;
 };
 
 export const uploadToBlob = async (request: Blob) => {
-	const blob = await put(`${request.firstName}_${request.lastName}`, request.file, {
+	console.log("request", request);
+	const blob = await put(request.fileName, request.file, {
 		access: "public",
 	});
 	if (!blob) {
@@ -16,4 +16,9 @@ export const uploadToBlob = async (request: Blob) => {
 	}
 
 	return blob.url;
+};
+
+export const deleteFromBlob = async (url: string) => {
+	console.log("url", url);
+	await del(url);
 };

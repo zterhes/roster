@@ -10,7 +10,7 @@ import { currentUser } from "@clerk/nextjs/server";
 
 export const POST = async (req: NextRequest) => {
 	try {
-		await handleAuth();
+		const { organizationId } = await handleAuth(true);
 		const formData = await req.formData();
 
 		const { firstName, lastName, file } = createPlayerRequestSchema.parse({
@@ -22,13 +22,12 @@ export const POST = async (req: NextRequest) => {
 		let blobUrl: string = env.DEFAULT_IMAGE_URL;
 		if (file) {
 			blobUrl = await uploadToBlob({
-				firstName,
-				lastName,
+				fileName: `${firstName}_${lastName}`,
 				file,
 			});
 		}
 
-		const createResult = await createPlayer(firstName, lastName, blobUrl);
+		const createResult = await createPlayer(firstName, lastName, blobUrl, organizationId as string);
 
 		return NextResponse.json({ userId: createResult.id }, { status: 200 });
 	} catch (error) {

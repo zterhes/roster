@@ -8,8 +8,8 @@ export class PersistationError extends Error {
 }
 
 export enum PersistationErrorType {
-	FailedToCreateUser = "FailedToCreateUser",
-	UpdateUser = "UpdateUser",
+	CreateError = "CreateError",
+	UpdateError = "UpdateError",
 	BlobError = "BlobError",
 }
 
@@ -40,4 +40,5 @@ export class AuthError extends Error {
 }
 export enum AuthErrorType {
 	Unauthorized = "Unauthorized",
+	NoOrganization = "NoOrganization",
 }

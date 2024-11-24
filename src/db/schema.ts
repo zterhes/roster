@@ -9,9 +9,8 @@ export const playersTable = pgTable("players", {
 });
 
 export const defaultsTable = pgTable("defaults", {
-	id: serial("id").primaryKey(),
-	organizationId: text("organization_id").notNull(),
-	storyUrl: text("story_url").notNull(),
-	feedUrl: text("feed_url").notNull(),
-	playerUrl: text("player_url").notNull(),
+	organizationId: text("organization_id").notNull().primaryKey(),
+	storyUrl: text("story_url"),
+	postUrl: text("post_url"),
+	playerUrl: text("player_url"),
 });

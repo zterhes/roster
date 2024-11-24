@@ -15,6 +15,27 @@
       "when": 1732400836631,
       "tag": "0001_perfect_george_stacy",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1732402937582,
+      "tag": "0002_tricky_marvel_boy",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1732405110539,
+      "tag": "0003_narrow_sleepwalker",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1732405146960,
+      "tag": "0004_wooden_cloak",
+      "breakpoints": true
     }
   ]
 }

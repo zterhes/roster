@@ -23,8 +23,7 @@ export const POST = async (request: Request, { params }: { params: Promise<{ id:
 		let blobUrl: string | undefined = undefined;
 		if (requestData.file) {
 			blobUrl = await uploadToBlob({
-				firstName: requestData.firstName,
-				lastName: requestData.lastName,
+				fileName: `${requestData.firstName}_${requestData.lastName}`,
 				file: requestData.file,
 			});
 		}
