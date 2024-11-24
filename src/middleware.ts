@@ -14,7 +14,7 @@ export default clerkMiddleware(async (auth, req) => {
 	if (userId) {
 		console.log("no user id");
 		const organizations = await (await clerkClient()).users.getOrganizationMembershipList({
-			userId: userId || "",
+			userId: userId,
 		});
 		if (fronendRoutes(req.nextUrl.pathname) && organizations.totalCount < 1) {
 			return NextResponse.redirect(new URL("/no-organisation", req.url));
