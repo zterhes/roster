@@ -1,3 +1,4 @@
+import { defaultImagesResponseSchema, type UpdateDefaultImagesRequest } from "@/types/DefaultRoute";
 import { ClientServerCallError, ClientServerCallErrorType } from "@/types/Errors";
 import {
 	type CreatePlayerRequest,
@@ -90,22 +91,60 @@ const buildPlayerFormData = (request: CreatePlayerRequest) => {
 	const formData = new FormData();
 	formData.append("firstName", request.firstName);
 	formData.append("lastName", request.lastName);
-	console.log("request.file", request.file);
 	if (request.file) {
 		formData.append("file", request.file);
 	}
 	return formData;
 };
 
+export const fetchDefaultImages = {
+	fn: async () => {
+		try {
+			const response = await axios.get("/api/default");
+			return defaultImagesResponseSchema.parse(response.data);
+		} catch (error) {
+			throw handleError(error, "/api/default");
+		}
+	},
+	key: "fetchDefaultImages",
+};
+
+export const updateDefaultImages = {
+	fn: async (request: UpdateDefaultImagesRequest) => {
+		try {
+			const formData = new FormData();
+			if (request.post) {
+				formData.append("post", request.post);
+			}
+			if (request.story) {
+				formData.append("story", request.story);
+			}
+			if (request.player) {
+				formData.append("player", request.player);
+			}
+			const response = await axios({
+				method: "post",
+				url: "/api/default",
+				data: formData,
+				headers: {
+					"Content-Type": "multipart/form-data",
+				},
+			});
+			return response.status;
+		} catch (error) {
+			throw handleError(error, "/api/default");
+		}
+	},
+	key: "updateDefaultImages",
+};
+
 const handleError = (error: unknown, route: string) => {
+	console.error(error);
 	if (error instanceof ZodError) {
-		console.error(error);
 		return new ClientServerCallError(ClientServerCallErrorType.ValidationError, route, error.message);
 	}
 	if (axios.isAxiosError(error)) {
-		console.error(error);
 		return new ClientServerCallError(ClientServerCallErrorType.AxiosError, route, error.message);
 	}
-	console.error(error);
 	return new ClientServerCallError(ClientServerCallErrorType.UnknownError, route, (error as Error).message);
 };

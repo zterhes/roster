@@ -8,7 +8,6 @@ const envSchema = z.object({
 	CLERK_SECRET_KEY: z.string(),
 	POSTGRES_URL: z.string(),
 	BLOB_READ_WRITE_TOKEN: z.string(),
-	DEFAULT_IMAGE_URL: z.string(),
 });
 
 const env = envSchema.parse(process.env);

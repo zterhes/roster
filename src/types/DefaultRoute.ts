@@ -1,8 +1,16 @@
 import { z } from "zod";
 import { fileSchema } from "./File";
 
-export const UpdateDefaultImagesRequest = z.object({
+export const updateDefaultImagesRequestSchema = z.object({
 	post: fileSchema.optional().nullable(),
 	story: fileSchema.optional().nullable(),
 	player: fileSchema.optional().nullable(),
+});
+
+export type UpdateDefaultImagesRequest = z.infer<typeof updateDefaultImagesRequestSchema>;
+
+export const defaultImagesResponseSchema = z.object({
+	post: z.string(),
+	story: z.string(),
+	player: z.string(),
 });

@@ -5,8 +5,6 @@ import type { UserAuthData } from "@/types/Auth";
 export const handleAuth = async (withOrganization?: boolean): Promise<UserAuthData> => {
 	const { userId } = await auth();
 
-	console.log("userId", userId);
-
 	if (!userId) {
 		throw new AuthError(AuthErrorType.Unauthorized, "Unauthorized");
 	}

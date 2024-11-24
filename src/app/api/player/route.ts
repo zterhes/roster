@@ -1,11 +1,10 @@
-import { createPlayer, getAllPlayers } from "@/db";
-import env from "@/env";
+import { createPlayer, getAllPlayers, getDefaultImages } from "@/db";
 import { createPlayerRequestSchema } from "@/types/Player";
 import { type NextRequest, NextResponse } from "next/server";
 import { uploadToBlob } from "../utils/blob";
 import { handleError } from "@/lib/utils";
 import { handleAuth } from "../utils/auth";
-
+import { PersistationError, PersistationErrorType } from "@/types/Errors";
 export const POST = async (req: NextRequest) => {
 	try {
 		const { organizationId } = await handleAuth(true);
@@ -17,12 +16,16 @@ export const POST = async (req: NextRequest) => {
 			file: formData.get("file"),
 		});
 
-		let blobUrl: string = env.DEFAULT_IMAGE_URL;
+		let blobUrl: string;
 		if (file) {
 			blobUrl = await uploadToBlob({
 				fileName: `${firstName}_${lastName}`,
 				file,
 			});
+		} else {
+			const defaultImages = await getDefaultImages(organizationId as string);
+			if (defaultImages[0]?.playerUrl) blobUrl = defaultImages[0]?.playerUrl;
+			else throw new PersistationError(PersistationErrorType.NotFound, "No default player image found");
 		}
 
 		const createResult = await createPlayer(firstName, lastName, blobUrl, organizationId as string);

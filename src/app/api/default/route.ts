@@ -1,7 +1,7 @@
 import { handleError } from "@/lib/utils";
 import { type NextRequest, NextResponse } from "next/server";
 import { handleAuth } from "../utils/auth";
-import { UpdateDefaultImagesRequest } from "@/types/DefaultRoute";
+import { defaultImagesResponseSchema, updateDefaultImagesRequestSchema } from "@/types/DefaultRoute";
 import { getDefaultImages, updateDefaultImages } from "@/db";
 import { deleteFromBlob, uploadToBlob } from "../utils/blob";
 
@@ -9,7 +9,12 @@ export const GET = async () => {
 	try {
 		const { organizationId } = await handleAuth(true);
 		const defaultImages = await getDefaultImages(organizationId as string);
-		return NextResponse.json({ defaultImages }, { status: 200 });
+		const response = defaultImagesResponseSchema.parse({
+			post: defaultImages[0]?.postUrl,
+			story: defaultImages[0]?.storyUrl,
+			player: defaultImages[0]?.playerUrl,
+		});
+		return NextResponse.json({ post: response.post, story: response.story, player: response.player }, { status: 200 });
 	} catch (error) {
 		return handleError(error);
 	}
@@ -20,7 +25,7 @@ export const POST = async (req: NextRequest) => {
 		const { organizationId } = await handleAuth(true);
 
 		const formData = await req.formData();
-		const request = UpdateDefaultImagesRequest.parse({
+		const request = updateDefaultImagesRequestSchema.parse({
 			post: formData.get("post"),
 			story: formData.get("story"),
 			player: formData.get("player"),

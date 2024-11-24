@@ -14,7 +14,8 @@ import { Button } from "./ui/button";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Image from "next/image";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createPlayer, updatePlayer } from "../app/utils/apiService";
+import { createPlayer, fetchPlayers, updatePlayer } from "../app/utils/apiService";
+import { toast } from "@/hooks/use-toast";
 
 type FormProps = {
 	isDialogOpen: boolean;
@@ -55,14 +56,22 @@ const PlayerFormDialog: React.FC<FormProps> = ({ isDialogOpen, setIsDialogOpen, 
 			});
 			return createPlayer.fn(request);
 		},
-		mutationKey: ["createPlayer"],
+		mutationKey: [createPlayer.key],
 		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ["fetchPlayers"] });
+			queryClient.invalidateQueries({ queryKey: [fetchPlayers.key] });
 			setIsDialogOpen(false);
+			toast({
+				title: "Player created",
+				description: "The player has been created successfully",
+			});
 		},
 		onError: (error) => {
 			console.error("error", error);
-			alert("Error creating player");
+			toast({
+				variant: "destructive",
+				title: "Error creating player",
+				description: "An error occurred while creating the player. Please try again or contact support.",
+			});
 		},
 	});
 
@@ -80,11 +89,15 @@ const PlayerFormDialog: React.FC<FormProps> = ({ isDialogOpen, setIsDialogOpen, 
 		},
 		mutationKey: ["updatePlayer"],
 		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ["fetchPlayers"] });
+			queryClient.invalidateQueries({ queryKey: [fetchPlayers.key] });
 			setIsDialogOpen(false);
 		},
 		onError: () => {
-			alert("Error updating player");
+			toast({
+				variant: "destructive",
+				title: "Error updating player",
+				description: "An error occurred while updating the player. Please try again or contact support.",
+			});
 		},
 	});
 
