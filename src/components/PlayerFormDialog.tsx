@@ -9,12 +9,12 @@ import {
 } from "@/types/Player";
 import { z } from "zod";
 import { useForm, Controller } from "react-hook-form";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "./ui/button";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Image from "next/image";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createPlayer, fetchPlayers, updatePlayer } from "../app/utils/apiService";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { createPlayer, fetchDefaultImages, fetchPlayers, updatePlayer } from "../app/utils/apiService";
 import { toast } from "@/hooks/use-toast";
 
 type FormProps = {
@@ -43,6 +43,19 @@ const PlayerFormDialog: React.FC<FormProps> = ({ isDialogOpen, setIsDialogOpen, 
 			: undefined,
 		resolver: zodResolver(playerSchema),
 	});
+
+	const [defaultPlayerImage, setDefaultPlayerImage] = useState("");
+
+	const { data: defaultImages } = useQuery({
+		queryKey: [fetchDefaultImages.key],
+		queryFn: () => fetchDefaultImages.fn(),
+	});
+
+	useEffect(() => {
+		if (defaultImages) {
+			setDefaultPlayerImage(defaultImages.player);
+		}
+	}, [defaultImages]);
 
 	const [imagePreview, setImagePreview] = useState<string | undefined>(player?.photoUrl);
 
@@ -132,8 +145,7 @@ const PlayerFormDialog: React.FC<FormProps> = ({ isDialogOpen, setIsDialogOpen, 
 									<Image
 										width={100}
 										height={100}
-										//TODO change this to blobs default!
-										src={imagePreview || "/placeholder-image.png"}
+										src={imagePreview || defaultPlayerImage}
 										alt="Player"
 										className="rounded-full object-cover cursor-pointer"
 										onClick={() => document.getElementById("photo")?.click()}

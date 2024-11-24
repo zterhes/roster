@@ -9,7 +9,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Edit, Loader2, Search, UserPlus } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
-import { fetchDefaultImages, fetchPlayers } from "../utils/apiService";
+import { fetchPlayers } from "../utils/apiService";
 
 export default function PlayersList() {
 	const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -19,11 +19,6 @@ export default function PlayersList() {
 	const { data, error, isLoading } = useQuery({
 		queryKey: [fetchPlayers.key],
 		queryFn: () => fetchPlayers.fn(),
-	});
-
-	const { data: defaultImages } = useQuery({
-		queryKey: [fetchDefaultImages.key],
-		queryFn: () => fetchDefaultImages.fn(),
 	});
 
 	const handleDialogOpen = (player?: Player) => {
