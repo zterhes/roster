@@ -11,14 +11,14 @@ const fronendRoutes = getRouteMatcher(getFrontendRoutes());
 
 export default clerkMiddleware(async (auth, req) => {
 	const { userId } = await auth();
-	if (!userId) {
+	if (userId) {
 		console.log("no user id");
-	}
-	const organizations = await (await clerkClient()).users.getOrganizationMembershipList({
-		userId: userId || "",
-	});
-	if (fronendRoutes(req.nextUrl.pathname) && organizations.totalCount < 1) {
-		return NextResponse.redirect(new URL("/no-organisation", req.url));
+		const organizations = await (await clerkClient()).users.getOrganizationMembershipList({
+			userId: userId || "",
+		});
+		if (fronendRoutes(req.nextUrl.pathname) && organizations.totalCount < 1) {
+			return NextResponse.redirect(new URL("/no-organisation", req.url));
+		}
 	}
 });
 
