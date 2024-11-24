@@ -1,6 +1,26 @@
-import { clerkMiddleware } from "@clerk/nextjs/server";
+import { clerkClient, clerkMiddleware } from "@clerk/nextjs/server";
+import { getRouteMatcher } from "next-route-matcher";
+import { NextResponse } from "next/server";
+import { routes } from "./app/frontendRoutes";
 
-export default clerkMiddleware();
+const getFrontendRoutes = () => {
+	return routes.map((route) => route.url);
+};
+
+const fronendRoutes = getRouteMatcher(getFrontendRoutes());
+
+export default clerkMiddleware(async (auth, req) => {
+	const { userId } = await auth();
+	if (!userId) {
+		return NextResponse.redirect(new URL("/sign-in", req.url));
+	}
+	const organizations = await (await clerkClient()).users.getOrganizationMembershipList({
+		userId: userId,
+	});
+	if (fronendRoutes(req.nextUrl.pathname) && organizations.totalCount < 1) {
+		return NextResponse.redirect(new URL("/no-organisation", req.url));
+	}
+});
 
 export const config = {
 	matcher: [

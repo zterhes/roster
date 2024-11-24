@@ -286,8 +286,8 @@ export default function DefaultImagesPage() {
 											src={playerImage.preview}
 											alt="Player preview"
 											className="h-full w-full object-cover"
-											width={50}
-											height={50}
+											width={300}
+											height={300}
 										/>
 									) : (
 										<div className="flex h-full items-center justify-center">

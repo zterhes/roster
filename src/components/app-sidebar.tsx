@@ -1,5 +1,3 @@
-import { Home, CalendarPlus, Users, Image as ImageIcon } from "lucide-react";
-
 import {
 	Sidebar,
 	SidebarContent,
@@ -12,47 +10,38 @@ import {
 	SidebarMenuItem,
 	SidebarSeparator,
 } from "@/components/ui/sidebar";
-import { UserButton, useUser } from "@clerk/nextjs";
-import React from "react";
+import { useOrganizationList, UserButton, useUser } from "@clerk/nextjs";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
-
-// Menu items
-const items = [
-	{
-		title: "Home",
-		url: "/",
-		icon: Home,
-	},
-	{
-		title: "Create Roster",
-		url: "/create/roster",
-		icon: CalendarPlus,
-	},
-	{
-		title: "Players",
-		url: "/players",
-		icon: Users,
-	},
-	{
-		title: "Default Images",
-		url: "/upload/default-images",
-		icon: ImageIcon,
-	},
-];
-
+import { routes } from "@/app/frontendRoutes";
+import RosterLogo from "@/components/RosterLogo";
 export function AppSidebar() {
 	const { user } = useUser();
+	const [orgImageUrl, setOrgImageUrl] = useState("");
+	const [orgName, setOrgName] = useState("");
+
+	//todo: fix this to use the userMemberships with state
+	const { userMemberships } = useOrganizationList({ userMemberships: true });
+
+	useEffect(() => {
+		if (userMemberships?.data?.[0]) {
+			setOrgImageUrl(userMemberships.data[0].organization.imageUrl);
+			setOrgName(userMemberships.data[0].organization.name);
+		}
+	}, [userMemberships]);
+
 	return (
 		<Sidebar>
 			<SidebarContent className="bg-[#0F1C26]">
 				<SidebarHeader className="bg-[#0F1C26] border-b border-[#00A3FF] flex flex-col items-center">
-					<Image width={50} height={50} src="/images/gorilla_logo.png" alt="" />
-					<h2 className="text-white">Gorillák Roster Management</h2>
+					{orgImageUrl ? <Image width={50} height={50} src={orgImageUrl} alt="" /> : <RosterLogo />}
+
+					<h2 className="text-white">{orgName} Roster Management</h2>
 				</SidebarHeader>
 				<SidebarGroup>
 					<SidebarGroupContent>
 						<SidebarMenu>
-							{items.map((item) => (
+							{routes.map((item) => (
 								<SidebarMenuItem key={item.title}>
 									<SidebarMenuButton
 										asChild
