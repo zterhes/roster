@@ -165,7 +165,6 @@ const PlayerFormDialog: React.FC<FormProps> = ({ isDialogOpen, setIsDialogOpen, 
 							)}
 						/>
 					</div>
-					{updateMutation.isError}
 					<div className="space-y-2">
 						<Label htmlFor="firstName" className="text-gray-300">
 							First Name

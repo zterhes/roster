@@ -1,8 +1,7 @@
 "use client";
 
-import Link from "next/link";
 import Image from "next/image";
-import { CalendarIcon, MapPinIcon, PencilIcon } from "lucide-react";
+import { CalendarIcon, MapPinIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Card, CardContent } from "./ui/card";
@@ -24,11 +23,11 @@ const matches: Match[] = [
 		id: 1,
 		homeTeam: {
 			name: "Dragons RFC",
-			logo: "/placeholder.svg?height=32&width=32",
+			logo: "/images/gorilla_logo.png",
 		},
 		awayTeam: {
 			name: "Cardiff Rugby",
-			logo: "/placeholder.svg?height=32&width=32",
+			logo: "/images/gorilla_logo.png",
 		},
 		place: "Rodney Parade",
 		date: "2024-02-10T19:35:00",
@@ -39,11 +38,11 @@ const matches: Match[] = [
 		id: 2,
 		homeTeam: {
 			name: "Scarlets",
-			logo: "/placeholder.svg?height=32&width=32",
+			logo: "/images/gorilla_logo.png",
 		},
 		awayTeam: {
 			name: "Ospreys",
-			logo: "/placeholder.svg?height=32&width=32",
+			logo: "/images/gorilla_logo.png",
 		},
 		place: "Parc y Scarlets",
 		date: "2024-02-17T17:15:00",
@@ -54,11 +53,11 @@ const matches: Match[] = [
 		id: 3,
 		homeTeam: {
 			name: "Lions",
-			logo: "/placeholder.svg?height=32&width=32",
+			logo: "/images/gorilla_logo.png",
 		},
 		awayTeam: {
 			name: "Sharks",
-			logo: "/placeholder.svg?height=32&width=32",
+			logo: "/images/gorilla_logo.png",
 		},
 		place: "Ellis Park",
 		date: "2024-02-24T14:00:00",
@@ -96,7 +95,7 @@ export default function MatchesDashboard() {
 							{matches.map((match) => (
 								<TableRow
 									key={match.id}
-									className="border-slate-800 hover:bg-slate-900 cursor-pointer  hover:scale-105 transition-all duration-200 ease-in-out"
+									className="border-slate-800 hover:bg-slate-900 cursor-pointer"
 									onClick={() => router.push(`/create/match/${match.id}`)}
 								>
 									<TableCell className="font-medium">
