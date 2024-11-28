@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect, type ChangeEvent } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect, useMemo, type ChangeEvent, use } from "react";
+import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import { CalendarIcon, MapPinIcon, ArrowLeft, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -11,9 +11,10 @@ import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { format } from "date-fns";
 import { Controller, useForm } from "react-hook-form";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { createMatchFormSchema, type CreateMatchFormValues } from "@/types/Match";
 import { zodResolver } from "@hookform/resolvers/zod";
+import React from "react";
 
 interface Match {
 	id: number;
@@ -25,70 +26,64 @@ interface Match {
 	status: "no roster" | "roster created" | "roster posted" | "score posted";
 }
 
-export default function EditMatch({ params }: { params: { id: string } }) {
-	const editing = !!params.id;
-	const { control, register, handleSubmit } = useForm<CreateMatchFormValues>({
+export default function EditMatch() {
+	const { id } = useParams();
+	const isEditing = id !== "new" && id != null;
+
+	const {
+		control,
+		register,
+		handleSubmit,
+		setValue,
+		watch,
+		formState: { errors },
+	} = useForm<CreateMatchFormValues>({
 		defaultValues: {
 			homeTeam: "",
 			homeTeamLogo: undefined,
 			awayTeam: "",
 			awayTeamLogo: undefined,
 			place: "",
-			date: "",
+			date: undefined,
 		},
 		resolver: zodResolver(createMatchFormSchema),
 	});
-	const [match, setMatch] = useState<Match | null>(null);
+	const [homeTeamLogoPreview, setHomeTeamLogoPreview] = useState<string | null>(null);
+	const [awayTeamLogoPreview, setAwayTeamLogoPreview] = useState<string | null>(null);
+	const [homeScore, setHomeScore] = useState<number>(0);
+	const [awayScore, setAwayScore] = useState<number>(0);
 
-	useEffect(() => {
-		// In a real application, you would fetch the match data from an API
-		// For this example, we'll use mock data
-		const mockMatch: Match = {
-			id: Number.parseInt(params.id) || 0,
-			homeTeam: { name: "Home Team", logo: "/placeholder.svg?height=32&width=32" },
-			awayTeam: { name: "Away Team", logo: "/placeholder.svg?height=32&width=32" },
-			place: "Stadium",
-			date: new Date().toISOString(),
-			score: "0 - 0",
-			status: "no roster",
-		};
-		setMatch(mockMatch);
-	}, [params.id]);
-
-	const handleSave = () => {
-		// In a real application, you would save the updated match data to an API
-		console.log("Saving match:", match);
-	};
-
-	const handleFileChange = (file: File | null) => {
+	const handleFileChange = (file: File | null, type: "homeTeam" | "awayTeam") => {
 		if (file) {
 			const reader = new FileReader();
 			reader.onloadend = () => {
-				setImagePreview(reader.result as string);
+				type === "homeTeam"
+					? setHomeTeamLogoPreview(reader.result as string)
+					: setAwayTeamLogoPreview(reader.result as string);
 			};
 			reader.readAsDataURL(file);
 		}
 	};
 
 	const onSubmit = (data: CreateMatchFormValues) => {
-		console.log(data);
+		console.log("data", data);
 	};
 
-	if (!match) {
-		return <div>Loading...</div>;
-	}
+	const selectedDate = watch("date");
+	console.log("selectedDate", selectedDate);
+	console.log("selectedDate_1", errors);
 
 	return (
 		<div className="min-h-screen  text-slate-50 p-6">
-			<h1 className="text-2xl font-bold mb-6">Edit Match</h1>
+			<h1 className="text-2xl font-bold mb-6">{isEditing ? "Edit Match" : "Create Match"}</h1>
 			<Card className="bg-[#0F1C26] border-[#193549] mb-8">
 				<CardHeader>
-					<CardTitle className="text-[#00A3FF]">Match Details</CardTitle>
+					<CardTitle className="text-[#00A3FF]">Match Basic Data</CardTitle>
 				</CardHeader>
 				<CardContent>
 					<form onSubmit={handleSubmit(onSubmit)}>
-						<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-							<div>
+						<div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+							<div className="max-md:border-b-2  border-[#00A3FF] pb-4">
 								<Label htmlFor="homeTeam" className="text-gray-300">
 									Home Team
 								</Label>
@@ -98,64 +93,95 @@ export default function EditMatch({ params }: { params: { id: string } }) {
 									placeholder="Enter home team name"
 									className="bg-[#162029] border-[#193549] text-white"
 								/>
-							</div>
-							<div>
+								{errors.homeTeam && <p className="text-red-500 mt-2">{errors.homeTeam.message}</p>}
 								<Controller
 									control={control}
 									name="homeTeamLogo"
 									render={({ field }) => (
-										<div className="flex items-center gap-2 mt-1">
-											<Image
-												src={match.homeTeam.logo}
-												alt={`${match.homeTeam.name} logo`}
-												width={32}
-												height={32}
-												className="rounded-full"
-											/>
+										<div className="flex items-center gap-2 mt-4 justify-center">
+											{homeTeamLogoPreview ? (
+												<Image
+													src={homeTeamLogoPreview}
+													alt="HomeTeam logo"
+													width={60}
+													height={60}
+													className="rounded-full object-cover cursor-pointer"
+													onClick={() => document.getElementById("homeTeamLogo")?.click()}
+												/>
+											) : (
+												<Button
+													className="w-[60px] h-[60px] bg-[#00A3FF] hover:bg-[#0077CC] text-white mt-4 rounded-full"
+													onClick={() => document.getElementById("homeTeamLogo")?.click()}
+												>
+													Add Logo
+												</Button>
+											)}
 											<Input
 												id="homeTeamLogo"
 												type="file"
+												accept="image/*"
+												style={{ display: "none" }}
 												onChange={(e) => {
 													const file = e.target.files?.[0] ?? null;
 													field.onChange(file);
-													handleLogoUpload("homeTeam")(file);
+													handleFileChange(file, "homeTeam");
 												}}
-												className="bg-[#162029] border-[#193549] text-white"
 											/>
+											{errors.homeTeamLogo && <p className="text-red-500 mt-2">{errors.homeTeamLogo.message}</p>}
 										</div>
 									)}
 								/>
 							</div>
-							<div>
-								<Label htmlFor="awayTeam" className="text-slate-400">
+
+							<div className="max-md:border-b-2 border-[#00A3FF] pb-4">
+								<Label htmlFor="awayTeam" className="text-gray-300">
 									Away Team
 								</Label>
 								<Input
 									id="awayTeam"
-									value={match.awayTeam.name}
-									onChange={(e) => setMatch({ ...match, awayTeam: { ...match.awayTeam, name: e.target.value } })}
+									{...register("awayTeam")}
+									placeholder="Enter away team name"
 									className="bg-[#162029] border-[#193549] text-white"
 								/>
-							</div>
-							<div>
-								<Label htmlFor="awayTeamLogo" className="text-slate-400">
-									Away Team Logo
-								</Label>
-								<div className="flex items-center gap-2 mt-1">
-									<Image
-										src={match.awayTeam.logo}
-										alt={`${match.awayTeam.name} logo`}
-										width={32}
-										height={32}
-										className="rounded-full"
-									/>
-									<Input
-										id="awayTeamLogo"
-										type="file"
-										onChange={(e) => handleLogoUpload("awayTeam")(e.target.files?.[0] ?? null)}
-										className="bg-[#162029] border-[#193549] text-white"
-									/>
-								</div>
+								{errors.awayTeam && <p className="text-red-500 mt-2">{errors.awayTeam.message}</p>}
+								<Controller
+									control={control}
+									name="awayTeamLogo"
+									render={({ field }) => (
+										<div className="flex items-center gap-2 mt-4 justify-center">
+											{awayTeamLogoPreview ? (
+												<Image
+													src={awayTeamLogoPreview}
+													alt="AwayTeam logo"
+													width={50}
+													height={50}
+													className="rounded-full object-cover cursor-pointer"
+													onClick={() => document.getElementById("awayTeamLogo")?.click()}
+												/>
+											) : (
+												<Button
+													className="w-[60px] h-[60px] bg-[#00A3FF] hover:bg-[#0077CC] text-white mt-4 rounded-full"
+													onClick={() => document.getElementById("awayTeamLogo")?.click()}
+												>
+													Add Logo
+												</Button>
+											)}
+											<Input
+												id="awayTeamLogo"
+												type="file"
+												accept="image/*"
+												style={{ display: "none" }}
+												onChange={(e) => {
+													const file = e.target.files?.[0] ?? null;
+													field.onChange(file);
+													console.log("file", file);
+													handleFileChange(file, "awayTeam");
+												}}
+											/>
+											{errors.awayTeamLogo && <p className="text-red-500 mt-2">{errors.awayTeamLogo.message}</p>}
+										</div>
+									)}
+								/>
 							</div>
 							<div>
 								<Label htmlFor="place" className="text-slate-400">
@@ -165,10 +191,11 @@ export default function EditMatch({ params }: { params: { id: string } }) {
 									<MapPinIcon className="h-4 w-4 text-slate-400" />
 									<Input
 										id="place"
-										value={match.place}
-										onChange={(e) => setMatch({ ...match, place: e.target.value })}
+										{...register("place")}
+										placeholder="Enter match location"
 										className="bg-[#162029] border-[#193549] text-white"
 									/>
+									{errors.place && <p className="text-red-500 mt-2">{errors.place.message}</p>}
 								</div>
 							</div>
 							<div>
@@ -183,50 +210,82 @@ export default function EditMatch({ params }: { params: { id: string } }) {
 											className="w-full justify-start text-left font-normal bg-[#162029] border-[#193549] text-white"
 										>
 											<CalendarIcon className="mr-2 h-4 w-4" />
-											{match.date ? format(new Date(match.date), "PPP") : <span>Pick a date</span>}
+											<span>Pick a date</span>
 										</Button>
 									</PopoverTrigger>
 									<PopoverContent className="w-auto p-0 bg-slate-900 border-slate-800">
-										<Calendar
-											mode="single"
-											selected={new Date(match.date)}
-											onSelect={(date) => setMatch({ ...match, date: date ? date.toISOString() : match.date })}
-											initialFocus
-											className="bg-[#162029] border-[#193549] text-white"
-										/>
+										<>
+											<Calendar
+												mode="single"
+												selected={new Date()}
+												onSelect={(date) => setValue("date", date || new Date())}
+												initialFocus
+												className="bg-[#162029] border-[#193549] text-white"
+											/>
+											<input type="hidden" {...register("date")} />
+											{errors.date && <p className="text-red-500 mt-2">{errors.date.message}</p>}
+										</>
 									</PopoverContent>
 								</Popover>
 							</div>
 						</div>
+
+						<Button type="submit" variant={"roster"} className="w-1/2 mt-4">
+							{isEditing ? "Save changes" : "Create Match"}
+						</Button>
 					</form>
 				</CardContent>
 			</Card>
-			<div className="space-y-6 max-w-2xl bg-slate-950 p-6 rounded-lg">
-				<div>
-					<Label htmlFor="score" className="text-slate-400">
-						Score
-					</Label>
-					<Input
-						id="score"
-						value={match.score}
-						onChange={(e) => setMatch({ ...match, score: e.target.value })}
-						className="bg-slate-900 border-slate-800 text-slate-50 mt-1"
-					/>
-				</div>
-				<div>
-					<Label htmlFor="status" className="text-slate-400">
-						Status
-					</Label>
-					<Input
-						id="status"
-						value={match.status}
-						readOnly
-						className="bg-slate-900 border-slate-800 text-slate-50 mt-1"
-					/>
-				</div>
-			</div>
+
+			<Card className="bg-[#0F1C26] border-[#193549] mb-8">
+				<CardHeader>
+					<CardTitle className="text-[#00A3FF]">Score</CardTitle>
+				</CardHeader>
+				<CardContent className="flex gap-2 justify-around">
+					<div className="grid gap-2">
+						<Label htmlFor="homeScore" className="text-slate-400">
+							Home
+						</Label>
+						<Input
+							id="homeScore"
+							value={homeScore}
+							onChange={(e) => setHomeScore(Number(e.target.value))}
+							className="bg-[#162029] border-[#193549] text-white w-[80px]"
+						/>
+					</div>
+
+					<div className="grid gap-2">
+						<Label htmlFor="awayScore" className="text-slate-400">
+							Away
+						</Label>
+						<Input
+							id="awayScore"
+							value={awayScore}
+							onChange={(e) => setAwayScore(Number(e.target.value))}
+							className="bg-[#162029] border-[#193549] text-white w-[80px]"
+						/>
+					</div>
+				</CardContent>
+				<CardFooter className="flex justify-center">
+					<Button type="submit" variant={"roster"} className="w-1/2 mt-4">
+						Save Score
+					</Button>
+				</CardFooter>
+			</Card>
+
+			<Card className="bg-[#0F1C26] border-[#193549] mb-8">
+				<CardHeader>
+					<CardTitle className="text-[#00A3FF]">Match Details</CardTitle>
+				</CardHeader>
+				<CardContent>
+					<div className=" flex items-center justify-around">
+						<h4 className="mb-2 font-semibold text-slate-400">Roster</h4>
+						<Button variant={"roster"}>Add Roster</Button>
+					</div>
+				</CardContent>
+			</Card>
 			<div className="space-y-4">
-				<h3 className="text-lg font-semibold text-slate-50">Match Images</h3>
+				<h3 className="text-lg font-semibold text-slate-50">Match Details</h3>
 				<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 					<div>
 						<h4 className="mb-2 font-semibold text-slate-400">Roster Story</h4>
@@ -271,25 +330,6 @@ export default function EditMatch({ params }: { params: { id: string } }) {
 						/>
 					</div>
 				</div>
-			</div>
-			<div className="flex justify-between">
-				<div>
-					<Button
-						onClick={() => setMatch({ ...match, status: "roster created" })}
-						className="mr-2 bg-blue-600 text-slate-50 hover:bg-blue-700"
-					>
-						Create Roster
-					</Button>
-					<Button
-						onClick={() => setMatch({ ...match, status: "score posted" })}
-						className="bg-blue-600 text-slate-50 hover:bg-blue-700"
-					>
-						Add Score
-					</Button>
-				</div>
-				<Button onClick={handleSave} className="bg-green-600 text-slate-50 hover:bg-green-700">
-					Save changes
-				</Button>
 			</div>
 		</div>
 	);

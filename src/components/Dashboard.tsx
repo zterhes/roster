@@ -73,7 +73,7 @@ export default function MatchesDashboard() {
 		<div className="flex min-h-screen flex-col min-w-screen">
 			<div className="flex items-center justify-between p-6">
 				<h1 className="text-3xl font-bold">Matches</h1>
-				<Button className="bg-[#00A3FF] hover:bg-[#0077CC] text-white">
+				<Button className="bg-[#00A3FF] hover:bg-[#0077CC] text-white" onClick={() => router.push("/create/match/new")}>
 					<CalendarIcon className="mr-2 h-4 w-4" />
 					Add New Match
 				</Button>

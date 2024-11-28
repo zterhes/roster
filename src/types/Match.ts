@@ -1,12 +1,12 @@
 import { z } from "zod";
-
+import { fileSchema } from "./File";
 export const createMatchFormSchema = z.object({
 	homeTeam: z.string(),
-	homeTeamLogo: z.instanceof(File).optional(),
+	homeTeamLogo: fileSchema,
 	awayTeam: z.string(),
-	awayTeamLogo: z.instanceof(File).optional(),
+	awayTeamLogo: fileSchema,
 	place: z.string(),
-	date: z.string(),
+	date: z.date(),
 });
 
 export type CreateMatchFormValues = z.infer<typeof createMatchFormSchema>;
