@@ -36,6 +36,13 @@
       "when": 1732405146960,
       "tag": "0004_wooden_cloak",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1732801134589,
+      "tag": "0005_milky_marvex",
+      "breakpoints": true
     }
   ]
 }
