@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { fileSchema, imageSchema } from "@/types/File";
 import Image from "next/image";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { fetchDefaultImages, updateDefaultImages } from "@/app/utils/apiService";
+import { fetchDefaultImages, updateDefaultImages } from "@/lib/apiService";
 import type { UpdateDefaultImagesRequest } from "@/types/DefaultRoute";
 
 interface ImageUploadProps {

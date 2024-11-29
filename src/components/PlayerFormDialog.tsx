@@ -14,7 +14,7 @@ import { Button } from "./ui/button";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Image from "next/image";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createPlayer, fetchDefaultImages, fetchPlayers, updatePlayer } from "../app/utils/apiService";
+import { createPlayer, fetchDefaultImages, fetchPlayers, updatePlayer } from "../lib/apiService";
 import { toast } from "@/hooks/use-toast";
 
 type FormProps = {
