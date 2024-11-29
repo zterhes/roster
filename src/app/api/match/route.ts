@@ -1,12 +1,35 @@
 import { handleError } from "@/lib/utils";
 import { handleAuth } from "../utils/auth";
 import { type NextRequest, NextResponse } from "next/server";
-import { createMatchRequestSchema } from "@/types/Match";
+import { createMatchRequestSchema, matchSchema } from "@/types/Match";
 import { db } from "@/db";
-
+import { eq } from "drizzle-orm";
 import { matchesTable } from "@/db/schema";
 import { PersistationError, PersistationErrorType } from "@/types/Errors";
 import { uploadToBlob } from "../utils/blob";
+
+export const GET = async () => {
+	try {
+		const { organizationId } = await handleAuth(true);
+		const matches = await db
+			.select()
+			.from(matchesTable)
+			.where(eq(matchesTable.organizationId, organizationId as string));
+		PersistationError.handleError(matches[0], PersistationErrorType.NotFound);
+		const response = matches.map((match) =>
+			matchSchema.parse({
+				id: match.id,
+				homeTeam: { name: match.homeTeam, logoUrl: match.homeTeamLogoUrl },
+				awayTeam: { name: match.awayTeam, logoUrl: match.awayTeamLogoUrl },
+				place: match.place,
+				date: match.date,
+			}),
+		);
+		return NextResponse.json(response, { status: 200 });
+	} catch (error) {
+		return handleError(error);
+	}
+};
 
 export const POST = async (req: NextRequest) => {
 	try {
@@ -47,7 +70,8 @@ export const POST = async (req: NextRequest) => {
 			})
 			.returning({ id: matchesTable.id });
 		PersistationError.handleError(createdMatch[0], PersistationErrorType.CreateError);
-		return NextResponse.json({ createdMatch }, { status: 200 });
+		const response = createdMatch[0];
+		return NextResponse.json({ ...response }, { status: 200 });
 	} catch (error) {
 		return handleError(error);
 	}

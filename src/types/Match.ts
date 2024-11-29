@@ -17,7 +17,24 @@ export const createMatchRequestSchema = z.object({
 	awayTeam: z.string(),
 	awayTeamLogo: fileSchema,
 	place: z.string(),
-	date: z.date(),
+	date: z.coerce.date(),
 });
 
 export type CreateMatchRequestValues = z.infer<typeof createMatchRequestSchema>;
+
+export const teamSchema = z.object({
+	name: z.string(),
+	logoUrl: z.string(),
+});
+
+export const matchSchema = z.object({
+	id: z.number(),
+	homeTeam: teamSchema,
+	awayTeam: teamSchema,
+	place: z.string(),
+	date: z.coerce.date(),
+});
+
+export type Match = z.infer<typeof matchSchema>;
+
+export const matchesSchema = z.array(matchSchema);

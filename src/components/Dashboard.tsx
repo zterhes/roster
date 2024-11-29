@@ -6,68 +6,20 @@ import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Card, CardContent } from "./ui/card";
 import { useRouter } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
+import { fetchMatches } from "@/lib/apiService";
 
-interface Match {
-	id: number;
-	homeTeam: { name: string; logo: string };
-	awayTeam: { name: string; logo: string };
-	place: string;
-	date: string;
-	score: string;
-	status: "no roster" | "roster created" | "roster posted" | "score posted";
-}
-
-// Sample match data
-const matches: Match[] = [
-	{
-		id: 1,
-		homeTeam: {
-			name: "Dragons RFC",
-			logo: "/images/gorilla_logo.png",
-		},
-		awayTeam: {
-			name: "Cardiff Rugby",
-			logo: "/images/gorilla_logo.png",
-		},
-		place: "Rodney Parade",
-		date: "2024-02-10T19:35:00",
-		score: "24 - 21",
-		status: "score posted",
-	},
-	{
-		id: 2,
-		homeTeam: {
-			name: "Scarlets",
-			logo: "/images/gorilla_logo.png",
-		},
-		awayTeam: {
-			name: "Ospreys",
-			logo: "/images/gorilla_logo.png",
-		},
-		place: "Parc y Scarlets",
-		date: "2024-02-17T17:15:00",
-		score: "TBD",
-		status: "roster created",
-	},
-	{
-		id: 3,
-		homeTeam: {
-			name: "Lions",
-			logo: "/images/gorilla_logo.png",
-		},
-		awayTeam: {
-			name: "Sharks",
-			logo: "/images/gorilla_logo.png",
-		},
-		place: "Ellis Park",
-		date: "2024-02-24T14:00:00",
-		score: "TBD",
-		status: "no roster",
-	},
-];
+const match = {
+	score: "1-0",
+	status: "no roster",
+};
 
 export default function MatchesDashboard() {
 	const router = useRouter();
+	const { data: matches } = useQuery({
+		queryKey: ["fetchMatches"],
+		queryFn: fetchMatches.fn,
+	});
 
 	return (
 		<div className="flex min-h-screen flex-col min-w-screen">
@@ -92,7 +44,7 @@ export default function MatchesDashboard() {
 							</TableRow>
 						</TableHeader>
 						<TableBody>
-							{matches.map((match) => (
+							{matches?.map((match) => (
 								<TableRow
 									key={match.id}
 									className="border-slate-800 hover:bg-slate-900 cursor-pointer"
@@ -101,7 +53,7 @@ export default function MatchesDashboard() {
 									<TableCell className="font-medium">
 										<div className="flex items-center gap-2">
 											<Image
-												src={match.homeTeam.logo}
+												src={match.homeTeam.logoUrl}
 												alt={`${match.homeTeam.name} logo`}
 												width={32}
 												height={32}
@@ -113,7 +65,7 @@ export default function MatchesDashboard() {
 									<TableCell>
 										<div className="flex items-center gap-2">
 											<Image
-												src={match.awayTeam.logo}
+												src={match.awayTeam.logoUrl}
 												alt={`${match.awayTeam.name} logo`}
 												width={32}
 												height={32}
@@ -137,10 +89,10 @@ export default function MatchesDashboard() {
 											})}
 										</div>
 									</TableCell>
-									<TableCell>{match.score}</TableCell>
+									{/* <TableCell>{match.score}</TableCell>
 									<TableCell className="hidden sm:table-cell">
 										<span className="capitalize">{match.status}</span>
-									</TableCell>
+									</TableCell> */}
 								</TableRow>
 							))}
 						</TableBody>

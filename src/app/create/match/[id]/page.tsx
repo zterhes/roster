@@ -12,23 +12,26 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { format } from "date-fns";
 import { Controller, useForm } from "react-hook-form";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { createMatchFormSchema, type CreateMatchFormValues } from "@/types/Match";
+import { createMatchFormSchema, type Match, type CreateMatchFormValues } from "@/types/Match";
 import { zodResolver } from "@hookform/resolvers/zod";
-import React from "react";
-
-interface Match {
-	id: number;
-	homeTeam: { name: string; logo: string };
-	awayTeam: { name: string; logo: string };
-	place: string;
-	date: string;
-	score: string;
-	status: "no roster" | "roster created" | "roster posted" | "score posted";
-}
+import type React from "react";
+import { useQuery } from "@tanstack/react-query";
+import { fetchMatchById } from "@/lib/apiService";
 
 export default function EditMatch() {
 	const { id } = useParams();
 	const isEditing = id !== "new" && id != null;
+
+	const [homeTeamLogoPreview, setHomeTeamLogoPreview] = useState<string | null>(null);
+	const [awayTeamLogoPreview, setAwayTeamLogoPreview] = useState<string | null>(null);
+	const [homeScore, setHomeScore] = useState<number>(0);
+	const [awayScore, setAwayScore] = useState<number>(0);
+
+	const { data: match, isLoading } = useQuery({
+		queryKey: ["fetchMatchById", id as string],
+		queryFn: () => fetchMatchById.fn(id as string),
+		enabled: isEditing,
+	});
 
 	const {
 		control,
@@ -36,6 +39,7 @@ export default function EditMatch() {
 		handleSubmit,
 		setValue,
 		watch,
+		reset,
 		formState: { errors },
 	} = useForm<CreateMatchFormValues>({
 		defaultValues: {
@@ -48,10 +52,21 @@ export default function EditMatch() {
 		},
 		resolver: zodResolver(createMatchFormSchema),
 	});
-	const [homeTeamLogoPreview, setHomeTeamLogoPreview] = useState<string | null>(null);
-	const [awayTeamLogoPreview, setAwayTeamLogoPreview] = useState<string | null>(null);
-	const [homeScore, setHomeScore] = useState<number>(0);
-	const [awayScore, setAwayScore] = useState<number>(0);
+
+	useEffect(() => {
+		if (match) {
+			reset({
+				homeTeam: match.homeTeam.name,
+				awayTeam: match.awayTeam.name,
+				place: match.place,
+				date: new Date(match.date),
+			});
+			setHomeTeamLogoPreview(match.homeTeam.logoUrl);
+			setAwayTeamLogoPreview(match.awayTeam.logoUrl);
+		}
+	}, [match, reset]);
+
+	console.log("match", match);
 
 	const handleFileChange = (file: File | null, type: "homeTeam" | "awayTeam") => {
 		if (file) {
@@ -70,8 +85,6 @@ export default function EditMatch() {
 	};
 
 	const selectedDate = watch("date");
-	console.log("selectedDate", selectedDate);
-	console.log("selectedDate_1", errors);
 
 	return (
 		<div className="min-h-screen  text-slate-50 p-6">
