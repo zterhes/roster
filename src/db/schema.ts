@@ -1,4 +1,4 @@
-import { pgTable, serial, text, timestamp } from "drizzle-orm/pg-core";
+import { integer, pgEnum, pgTable, serial, text, timestamp } from "drizzle-orm/pg-core";
 
 export const playersTable = pgTable("players", {
 	id: serial("id").primaryKey(),
@@ -24,4 +24,13 @@ export const matchesTable = pgTable("matches", {
 	place: text("place").notNull(),
 	date: timestamp("date").notNull(),
 	organizationId: text("organization_id").notNull(),
+});
+
+export const scoresTable = pgTable("scores", {
+	matchId: integer("match_id")
+		.references(() => matchesTable.id)
+		.notNull()
+		.primaryKey(),
+	homeTeamScore: integer("home_team_score").notNull(),
+	awayTeamScore: integer("away_team_score").notNull(),
 });

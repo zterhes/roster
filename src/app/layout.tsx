@@ -8,15 +8,21 @@ import { useState } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { dark } from "@clerk/themes";
 import { Toaster } from "@/components/ui/toaster";
+import { Geist } from "next/font/google";
 
 const queryClient = new QueryClient();
+
+const geistMono = Geist({
+	subsets: ["latin"],
+	weight: ["400", "500", "600", "700"],
+});
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
 	const [sidebarIsopen, setSidebarIsopen] = useState(true);
 
 	return (
 		<html lang="en">
-			<body>
+			<body className={geistMono.className}>
 				<QueryClientProvider client={queryClient}>
 					<ClerkProvider
 						appearance={{
@@ -34,7 +40,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 							>
 								<SidebarProvider open={sidebarIsopen} onOpenChange={setSidebarIsopen}>
 									<AppSidebar />
-									<main>
+									<main className="w-full">
 										<SidebarTrigger />
 										{children}
 									</main>

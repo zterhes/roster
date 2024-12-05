@@ -12,15 +12,26 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { format } from "date-fns";
 import { Controller, useForm } from "react-hook-form";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { createMatchFormSchema, type Match, type CreateMatchFormValues } from "@/types/Match";
+import {
+	createMatchFormSchema,
+	type Match,
+	type CreateMatchFormValues,
+	type CreateMatchRequestValues,
+	type UpdateMatchRequestValues,
+} from "@/types/Match";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type React from "react";
-import { useQuery } from "@tanstack/react-query";
-import { fetchMatchById } from "@/lib/apiService";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { fetchMatchById, createMatch, updateMatch } from "@/lib/apiService";
+import { DateTimePicker } from "@/components/ui/datetime-picker";
+import { toast } from "@/hooks/use-toast";
 
-export default function EditMatch() {
-	const { id } = useParams();
-	const isEditing = id !== "new" && id != null;
+type Props = {
+	id?: string;
+};
+
+export default function MatchPage({ id }: Props) {
+	const isEditing = !!id;
 
 	const [homeTeamLogoPreview, setHomeTeamLogoPreview] = useState<string | null>(null);
 	const [awayTeamLogoPreview, setAwayTeamLogoPreview] = useState<string | null>(null);
@@ -33,11 +44,33 @@ export default function EditMatch() {
 		enabled: isEditing,
 	});
 
+	const { mutate: createMatchMutation } = useMutation({
+		mutationKey: ["createMatch"],
+		mutationFn: (request: CreateMatchRequestValues) => createMatch.fn(request),
+		onSuccess: () => {
+			toast({
+				variant: "default",
+				title: "Match created successfully",
+			});
+		},
+		onError: () => {
+			toast({
+				variant: "destructive",
+				title: "Error creating match",
+				description: "Please try again later",
+			});
+		},
+	});
+
+	const { mutate: updateMatchMutation } = useMutation({
+		mutationKey: ["updateMatch"],
+		mutationFn: (request: UpdateMatchRequestValues) => updateMatch.fn(request, Number(id)),
+	});
+
 	const {
 		control,
 		register,
 		handleSubmit,
-		setValue,
 		watch,
 		reset,
 		formState: { errors },
@@ -66,8 +99,6 @@ export default function EditMatch() {
 		}
 	}, [match, reset]);
 
-	console.log("match", match);
-
 	const handleFileChange = (file: File | null, type: "homeTeam" | "awayTeam") => {
 		if (file) {
 			const reader = new FileReader();
@@ -81,13 +112,17 @@ export default function EditMatch() {
 	};
 
 	const onSubmit = (data: CreateMatchFormValues) => {
-		console.log("data", data);
+		if (isEditing) {
+			updateMatchMutation(data);
+		} else {
+			createMatchMutation(data);
+		}
 	};
 
 	const selectedDate = watch("date");
 
 	return (
-		<div className="min-h-screen  text-slate-50 p-6">
+		<div className="min-h-screen max-w-4xl mx-auto text-slate-50 p-6">
 			<h1 className="text-2xl font-bold mb-6">{isEditing ? "Edit Match" : "Create Match"}</h1>
 			<Card className="bg-[#0F1C26] border-[#193549] mb-8">
 				<CardHeader>
@@ -215,37 +250,24 @@ export default function EditMatch() {
 								<Label htmlFor="date" className="text-slate-400">
 									Date
 								</Label>
-								<Popover>
-									<PopoverTrigger asChild>
-										<Button
-											id="date"
-											variant="outline"
-											className="w-full justify-start text-left font-normal bg-[#162029] border-[#193549] text-white"
-										>
-											<CalendarIcon className="mr-2 h-4 w-4" />
-											<span>Pick a date</span>
-										</Button>
-									</PopoverTrigger>
-									<PopoverContent className="w-auto p-0 bg-slate-900 border-slate-800">
-										<>
-											<Calendar
-												mode="single"
-												selected={new Date()}
-												onSelect={(date) => setValue("date", date || new Date())}
-												initialFocus
-												className="bg-[#162029] border-[#193549] text-white"
-											/>
-											<input type="hidden" {...register("date")} />
-											{errors.date && <p className="text-red-500 mt-2">{errors.date.message}</p>}
-										</>
-									</PopoverContent>
-								</Popover>
+								<Controller
+									control={control}
+									name="date"
+									render={({ field }) => (
+										<DateTimePicker
+											value={field.value}
+											onChange={field.onChange}
+											className="bg-[#162029] border-[#193549] text-white"
+										/>
+									)}
+								/>
 							</div>
 						</div>
-
-						<Button type="submit" variant={"roster"} className="w-1/2 mt-4">
-							{isEditing ? "Save changes" : "Create Match"}
-						</Button>
+						<div className="flex justify-center">
+							<Button type="submit" variant={"roster"} className="w-1/2 mt-4">
+								{isEditing ? "Save changes" : "Create Match"}
+							</Button>
+						</div>
 					</form>
 				</CardContent>
 			</Card>
@@ -297,53 +319,6 @@ export default function EditMatch() {
 					</div>
 				</CardContent>
 			</Card>
-			<div className="space-y-4">
-				<h3 className="text-lg font-semibold text-slate-50">Match Details</h3>
-				<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-					<div>
-						<h4 className="mb-2 font-semibold text-slate-400">Roster Story</h4>
-						<Image
-							src="/placeholder.svg?height=1920&width=1080"
-							alt="Roster Story"
-							width={1080}
-							height={1920}
-							className="w-full h-auto rounded-md border border-slate-800"
-						/>
-					</div>
-					<div>
-						<h4 className="mb-2 font-semibold text-slate-400">Score Story</h4>
-						<Image
-							src="/placeholder.svg?height=1920&width=1080"
-							alt="Score Story"
-							width={1080}
-							height={1920}
-							className="w-full h-auto rounded-md border border-slate-800"
-						/>
-					</div>
-				</div>
-				<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-					<div>
-						<h4 className="mb-2 font-semibold text-slate-400">Roster Post</h4>
-						<Image
-							src="/placeholder.svg?height=630&width=1200"
-							alt="Roster Post"
-							width={1200}
-							height={630}
-							className="w-full h-auto rounded-md border border-slate-800"
-						/>
-					</div>
-					<div>
-						<h4 className="mb-2 font-semibold text-slate-400">Score Post</h4>
-						<Image
-							src="/placeholder.svg?height=630&width=1200"
-							alt="Score Post"
-							width={1200}
-							height={630}
-							className="w-full h-auto rounded-md border border-slate-800"
-						/>
-					</div>
-				</div>
-			</div>
 		</div>
 	);
 }

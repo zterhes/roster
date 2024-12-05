@@ -5,14 +5,10 @@ import { CalendarIcon, MapPinIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Card, CardContent } from "./ui/card";
-import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { fetchMatches } from "@/lib/apiService";
-
-const match = {
-	score: "1-0",
-	status: "no roster",
-};
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function MatchesDashboard() {
 	const router = useRouter();
@@ -25,10 +21,12 @@ export default function MatchesDashboard() {
 		<div className="flex min-h-screen flex-col min-w-screen">
 			<div className="flex items-center justify-between p-6">
 				<h1 className="text-3xl font-bold">Matches</h1>
-				<Button className="bg-[#00A3FF] hover:bg-[#0077CC] text-white" onClick={() => router.push("/create/match/new")}>
-					<CalendarIcon className="mr-2 h-4 w-4" />
-					Add New Match
-				</Button>
+				<Link href="/match" passHref>
+					<Button className="bg-[#00A3FF] hover:bg-[#0077CC] text-white">
+						<CalendarIcon className="mr-2 h-4 w-4" />
+						Add New Match
+					</Button>
+				</Link>
 			</div>
 			<Card className="bg-[#0F1C26] border-[#193549] mb-8 text-gray-300">
 				<CardContent>
@@ -48,7 +46,7 @@ export default function MatchesDashboard() {
 								<TableRow
 									key={match.id}
 									className="border-slate-800 hover:bg-slate-900 cursor-pointer"
-									onClick={() => router.push(`/create/match/${match.id}`)}
+									onClick={() => router.push(`/match/${match.id}`)}
 								>
 									<TableCell className="font-medium">
 										<div className="flex items-center gap-2">

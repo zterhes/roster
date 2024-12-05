@@ -7,18 +7,13 @@ export const routes = [
 		icon: Home,
 	},
 	{
-		title: "Create Roster",
-		url: "/create/roster",
-		icon: CalendarPlus,
-	},
-	{
 		title: "Players",
 		url: "/players",
 		icon: Users,
 	},
 	{
 		title: "Default Images",
-		url: "/upload/default-images",
+		url: "/default-images",
 		icon: ImageIcon,
 	},
 ];

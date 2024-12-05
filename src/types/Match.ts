@@ -20,7 +20,11 @@ export const createMatchRequestSchema = z.object({
 	date: z.coerce.date(),
 });
 
+export const updateMatchRequestSchema = createMatchRequestSchema.partial();
+
 export type CreateMatchRequestValues = z.infer<typeof createMatchRequestSchema>;
+
+export type UpdateMatchRequestValues = z.infer<typeof updateMatchRequestSchema>;
 
 export const teamSchema = z.object({
 	name: z.string(),

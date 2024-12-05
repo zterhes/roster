@@ -1,6 +1,11 @@
 import { defaultImagesResponseSchema, type UpdateDefaultImagesRequest } from "@/types/DefaultRoute";
 import { ClientServerCallError, ClientServerCallErrorType } from "@/types/Errors";
-import { matchesSchema, matchSchema } from "@/types/Match";
+import {
+	type CreateMatchRequestValues,
+	matchesSchema,
+	matchSchema,
+	type UpdateMatchRequestValues,
+} from "@/types/Match";
 import {
 	type CreatePlayerRequest,
 	createPlayerResponseSchema,
@@ -154,15 +159,78 @@ export const fetchMatches = {
 export const fetchMatchById = {
 	fn: async (id: string) => {
 		try {
-			console.log("Fetching match by id", id);
 			const response = await axios.get(`/api/match/${id}`);
-			console.log("response", response);
 			return matchSchema.parse(response.data);
 		} catch (error) {
 			throw handleError(error, `/api/match/${id}`);
 		}
 	},
 	key: "fetchMatchById",
+};
+
+export const createMatch = {
+	fn: async (request: CreateMatchRequestValues) => {
+		try {
+			const formData = new FormData();
+			formData.append("homeTeam", request.homeTeam);
+			formData.append("homeTeamLogo", request.homeTeamLogo);
+			formData.append("awayTeam", request.awayTeam);
+			formData.append("awayTeamLogo", request.awayTeamLogo);
+			formData.append("place", request.place);
+			formData.append("date", request.date.toISOString());
+			const response = await axios({
+				method: "post",
+				url: "/api/match",
+				data: formData,
+				headers: {
+					"Content-Type": "multipart/form-data",
+				},
+			});
+			return response.status;
+		} catch (error) {
+			throw handleError(error, "/api/match");
+		}
+	},
+	key: "createMatch",
+};
+
+export const updateMatch = {
+	fn: async (request: UpdateMatchRequestValues, id: number) => {
+		console.log("request", request);
+		try {
+			const formData = new FormData();
+			if (request.homeTeam) {
+				formData.append("homeTeam", request.homeTeam);
+			}
+			if (request.homeTeamLogo) {
+				formData.append("homeTeamLogo", request.homeTeamLogo);
+			}
+			if (request.awayTeam) {
+				formData.append("awayTeam", request.awayTeam);
+			}
+			if (request.awayTeamLogo) {
+				formData.append("awayTeamLogo", request.awayTeamLogo);
+			}
+			if (request.place) {
+				formData.append("place", request.place);
+			}
+			if (request.date) {
+				formData.append("date", request.date.toISOString());
+			}
+			const response = await axios({
+				method: "post",
+				url: `/api/match/${id}`,
+				data: formData,
+				headers: {
+					"Content-Type": "multipart/form-data",
+				},
+			});
+			return response.status;
+		} catch (error) {
+			throw handleError(error, "/api/match/${id}");
+		}
+	},
+	key: "updateMatch",
 };
 
 const handleError = (error: unknown, route: string) => {
