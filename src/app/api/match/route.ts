@@ -7,6 +7,7 @@ import { eq } from "drizzle-orm";
 import { matchesTable } from "@/db/schema";
 import { PersistationError, PersistationErrorType } from "@/types/Errors";
 import { uploadToBlob } from "../utils/blob";
+import { ro } from "date-fns/locale";
 
 export const GET = async () => {
 	try {
@@ -23,6 +24,7 @@ export const GET = async () => {
 				awayTeam: { name: match.awayTeam, logoUrl: match.awayTeamLogoUrl },
 				place: match.place,
 				date: match.date,
+				rosterStatus: match.rosterStatus,
 			}),
 		);
 		return NextResponse.json(response, { status: 200 });

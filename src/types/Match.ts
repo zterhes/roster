@@ -31,12 +31,15 @@ export const teamSchema = z.object({
 	logoUrl: z.string(),
 });
 
+export const rosterEnum = z.enum(["not_created", "saved", "generated", "posted"]);
+
 export const matchSchema = z.object({
 	id: z.number(),
 	homeTeam: teamSchema,
 	awayTeam: teamSchema,
 	place: z.string(),
 	date: z.coerce.date(),
+	rosterStatus: rosterEnum,
 });
 
 export type Match = z.infer<typeof matchSchema>;

@@ -18,6 +18,7 @@ import {
 	type CreateMatchFormValues,
 	type CreateMatchRequestValues,
 	type UpdateMatchRequestValues,
+	rosterEnum,
 } from "@/types/Match";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type React from "react";
@@ -25,6 +26,7 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { fetchMatchById, createMatch, updateMatch } from "@/lib/apiService";
 import { DateTimePicker } from "@/components/ui/datetime-picker";
 import { toast } from "@/hooks/use-toast";
+import Link from "next/link";
 
 type Props = {
 	id?: string;
@@ -118,8 +120,6 @@ export default function MatchPage({ id }: Props) {
 			createMatchMutation(data);
 		}
 	};
-
-	const selectedDate = watch("date");
 
 	return (
 		<div className="min-h-screen max-w-4xl mx-auto text-slate-50 p-6">
@@ -313,10 +313,12 @@ export default function MatchPage({ id }: Props) {
 					<CardTitle className="text-[#00A3FF]">Match Details</CardTitle>
 				</CardHeader>
 				<CardContent>
-					<div className=" flex items-center justify-around">
+					<Link href={`/roster/${match?.id}`} className=" flex items-center justify-around">
 						<h4 className="mb-2 font-semibold text-slate-400">Roster</h4>
-						<Button variant={"roster"}>Add Roster</Button>
-					</div>
+						<Button variant={"roster"}>
+							{match?.rosterStatus === rosterEnum.Values.not_created ? "Add Roster" : "View Roster"}
+						</Button>
+					</Link>
 				</CardContent>
 			</Card>
 		</div>

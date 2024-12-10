@@ -25,6 +25,7 @@ export const GET = async (_request: Request, { params }: { params: Promise<{ id:
 			awayTeam: { name: match[0].awayTeam, logoUrl: match[0].awayTeamLogoUrl },
 			place: match[0].place,
 			date: match[0].date,
+			rosterStatus: match[0].rosterStatus,
 		});
 		return NextResponse.json(response, { status: 200 });
 	} catch (error) {

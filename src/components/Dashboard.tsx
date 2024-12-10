@@ -87,10 +87,10 @@ export default function MatchesDashboard() {
 											})}
 										</div>
 									</TableCell>
-									{/* <TableCell>{match.score}</TableCell>
+									<TableCell>not implemented</TableCell>
 									<TableCell className="hidden sm:table-cell">
-										<span className="capitalize">{match.status}</span>
-									</TableCell> */}
+										<span className="capitalize">{match.rosterStatus}</span>
+									</TableCell>
 								</TableRow>
 							))}
 						</TableBody>

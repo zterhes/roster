@@ -12,6 +12,7 @@ import {
 	playerSchema,
 	type UpdatePlayerRequest,
 } from "@/types/Player";
+import { getRosterResponseSchema, type CreateRosterRequest } from "@/types/Roster";
 import axios from "axios";
 import axiosRetry from "axios-retry";
 import { ZodError } from "zod";
@@ -46,10 +47,7 @@ export const fetchPlayers = {
 
 export const createPlayer = {
 	fn: async (request: CreatePlayerRequest) => {
-		console.log("SERVICE");
-
 		const formData = buildPlayerFormData(request);
-		console.log("SERVICE");
 
 		try {
 			const response = await axios({
@@ -231,6 +229,30 @@ export const updateMatch = {
 		}
 	},
 	key: "updateMatch",
+};
+
+export const createRoster = {
+	fn: async (createRosterRequest: CreateRosterRequest) => {
+		try {
+			const response = await axios.post("/api/roster", createRosterRequest);
+			return response.status;
+		} catch (error) {
+			throw handleError(error, "/api/roster");
+		}
+	},
+	key: "createRoster",
+};
+
+export const fetchRoster = {
+	fn: async (matchId: number) => {
+		try {
+			const response = await axios.get(`/api/roster/${matchId}`);
+			return getRosterResponseSchema.parse(response.data);
+		} catch (error) {
+			throw handleError(error, `/api/roster/${matchId}`);
+		}
+	},
+	key: "fetchRoster",
 };
 
 const handleError = (error: unknown, route: string) => {
