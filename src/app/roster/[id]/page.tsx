@@ -7,7 +7,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Label } from "@/components/ui/label";
 import { PlusCircle, MapPin, Calendar } from "lucide-react";
 import { useParams } from "next/navigation";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { createRoster, fetchMatchById, fetchPlayers, fetchRoster } from "@/lib/apiService";
 import { format } from "date-fns/format";
 import Image from "next/image";
@@ -15,7 +15,6 @@ import { Spinner } from "@/components/ui/spinner";
 import { toast } from "@/hooks/use-toast";
 import type { Player } from "@/types/Player";
 import { type CreateRosterRequest, createRosterRequestSchema } from "@/types/Roster";
-import { is } from "drizzle-orm";
 
 //todo: change this to a real API call
 const rugbyPositions = [
@@ -77,7 +76,7 @@ export default function RosterPage() {
 				description: "Roster created successfully",
 			});
 		},
-		onError: (error) => {
+		onError: () => {
 			toast({
 				title: "Roster Creation Failed",
 				description: "Please make some changes and try again",

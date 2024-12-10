@@ -1,4 +1,4 @@
-import { Home, CalendarPlus, Users, Image as ImageIcon } from "lucide-react";
+import { Home, Users, Image as ImageIcon } from "lucide-react";
 
 export const routes = [
 	{

@@ -47,7 +47,7 @@ export const POST = async (req: NextRequest) => {
 					if (result === null) tx.rollback();
 				}
 			})
-			.catch((error) => {
+			.catch(() => {
 				throw new PersistationError(PersistationErrorType.CreateError, "Roster already exists, transaction failed");
 			});
 

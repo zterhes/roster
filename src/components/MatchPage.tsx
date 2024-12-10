@@ -1,20 +1,15 @@
 "use client";
 
-import { useState, useEffect, useMemo, type ChangeEvent, use } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
 import Image from "next/image";
-import { CalendarIcon, MapPinIcon, ArrowLeft, MapPin } from "lucide-react";
+import { MapPinIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { format } from "date-fns";
 import { Controller, useForm } from "react-hook-form";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import {
 	createMatchFormSchema,
-	type Match,
 	type CreateMatchFormValues,
 	type CreateMatchRequestValues,
 	type UpdateMatchRequestValues,
@@ -40,7 +35,7 @@ export default function MatchPage({ id }: Props) {
 	const [homeScore, setHomeScore] = useState<number>(0);
 	const [awayScore, setAwayScore] = useState<number>(0);
 
-	const { data: match, isLoading } = useQuery({
+	const { data: match } = useQuery({
 		queryKey: ["fetchMatchById", id as string],
 		queryFn: () => fetchMatchById.fn(id as string),
 		enabled: isEditing,
@@ -73,7 +68,6 @@ export default function MatchPage({ id }: Props) {
 		control,
 		register,
 		handleSubmit,
-		watch,
 		reset,
 		formState: { errors },
 	} = useForm<CreateMatchFormValues>({
@@ -101,6 +95,7 @@ export default function MatchPage({ id }: Props) {
 		}
 	}, [match, reset]);
 
+	/* eslint-disable */
 	const handleFileChange = (file: File | null, type: "homeTeam" | "awayTeam") => {
 		if (file) {
 			const reader = new FileReader();
@@ -112,6 +107,7 @@ export default function MatchPage({ id }: Props) {
 			reader.readAsDataURL(file);
 		}
 	};
+	/* eslint-enable  */
 
 	const onSubmit = (data: CreateMatchFormValues) => {
 		if (isEditing) {
