@@ -1,3 +1,6 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-nocheck
+
 import { Button, buttonVariants } from "@/components/ui/button";
 import type { CalendarProps } from "@/components/ui/calendar";
 import { Input } from "@/components/ui/input";

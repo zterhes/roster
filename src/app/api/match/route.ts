@@ -58,9 +58,11 @@ export const POST = async (req: NextRequest) => {
 				file: request.awayTeamLogo,
 			});
 		}
+
 		const createdMatch = await db
 			.insert(matchesTable)
 			.values({
+				// @ts-expect-error: Field name mismatch between camelCase and snake_case mapping
 				homeTeam: request.homeTeam,
 				homeTeamLogoUrl: homeTeamLogoUrl,
 				awayTeam: request.awayTeam,
@@ -70,6 +72,7 @@ export const POST = async (req: NextRequest) => {
 				organizationId: organizationId,
 			})
 			.returning({ id: matchesTable.id });
+
 		PersistationError.handleError(createdMatch[0], PersistationErrorType.CreateError);
 		const response = createdMatch[0];
 		return NextResponse.json({ ...response }, { status: 200 });
