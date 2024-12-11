@@ -29,7 +29,6 @@ type Props = {
 
 export default function MatchPage({ id }: Props) {
 	const isEditing = !!id;
-	console.log("id", id);
 
 	const [homeTeamLogoPreview, setHomeTeamLogoPreview] = useState<string | null>(null);
 	const [awayTeamLogoPreview, setAwayTeamLogoPreview] = useState<string | null>(null);
@@ -117,6 +116,8 @@ export default function MatchPage({ id }: Props) {
 			createMatchMutation(data);
 		}
 	};
+
+	console.log("match", match);
 
 	return (
 		<div className="min-h-screen max-w-4xl mx-auto text-slate-50 p-6">
@@ -219,7 +220,6 @@ export default function MatchPage({ id }: Props) {
 												onChange={(e) => {
 													const file = e.target.files?.[0] ?? null;
 													field.onChange(file);
-													console.log("file", file);
 													handleFileChange(file, "awayTeam");
 												}}
 											/>
@@ -313,7 +313,7 @@ export default function MatchPage({ id }: Props) {
 					<Link href={`/roster/${match?.id}`} className=" flex items-center justify-around">
 						<h4 className="mb-2 font-semibold text-slate-400">Roster</h4>
 						<Button variant={"roster"}>
-							{match?.rosterStatus === rosterEnum.Values.not_created ? "Add Roster" : "View Roster"}
+							{!match || match.rosterStatus === rosterEnum.Values.not_created ? "Add Roster" : "View Roster"}
 						</Button>
 					</Link>
 				</CardContent>
