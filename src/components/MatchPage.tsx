@@ -29,6 +29,7 @@ type Props = {
 
 export default function MatchPage({ id }: Props) {
 	const isEditing = !!id;
+	console.log("id", id);
 
 	const [homeTeamLogoPreview, setHomeTeamLogoPreview] = useState<string | null>(null);
 	const [awayTeamLogoPreview, setAwayTeamLogoPreview] = useState<string | null>(null);

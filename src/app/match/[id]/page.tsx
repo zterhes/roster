@@ -5,5 +5,6 @@ import { useParams } from "next/navigation";
 
 export default function EditMatch() {
 	const { id } = useParams();
-	return <MatchPage id={id?.[0]} />;
+	const matchId = Array.isArray(id) ? id.join() : id || undefined;
+	return <MatchPage id={matchId} />;
 }
