@@ -4,7 +4,7 @@ import { PersistationError, PersistationErrorType } from "@/types/Errors";
 import { eq } from "drizzle-orm";
 import type { UpdatePlayerDto } from "@/types/Player";
 
-const db = drizzle();
+export const db = drizzle();
 
 export const createPlayer = async (
 	firstName: string,

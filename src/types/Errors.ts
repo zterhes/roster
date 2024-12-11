@@ -5,6 +5,10 @@ export class PersistationError extends Error {
 		super(message);
 		this.type = type;
 	}
+
+	static handleError(result: { id: number | null }, type: PersistationErrorType) {
+		if (result?.id == null) throw new PersistationError(type, "creation failed");
+	}
 }
 
 export enum PersistationErrorType {

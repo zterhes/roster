@@ -1,4 +1,4 @@
-import { Home, CalendarPlus, Users, Image as ImageIcon } from "lucide-react";
+import { Home, Users, Image as ImageIcon } from "lucide-react";
 
 export const routes = [
 	{
@@ -7,18 +7,13 @@ export const routes = [
 		icon: Home,
 	},
 	{
-		title: "Create Roster",
-		url: "/create/roster",
-		icon: CalendarPlus,
-	},
-	{
 		title: "Players",
 		url: "/players",
 		icon: Users,
 	},
 	{
 		title: "Default Images",
-		url: "/upload/default-images",
+		url: "/default-images",
 		icon: ImageIcon,
 	},
 ];

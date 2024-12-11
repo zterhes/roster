@@ -36,6 +36,34 @@
       "when": 1732405146960,
       "tag": "0004_wooden_cloak",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1732801134589,
+      "tag": "0005_milky_marvex",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1733419673053,
+      "tag": "0006_organic_nebula",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1733420728601,
+      "tag": "0007_bitter_loners",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1733838048672,
+      "tag": "0008_cheerful_shiver_man",
+      "breakpoints": true
     }
   ]
 }
