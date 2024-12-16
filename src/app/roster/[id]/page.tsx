@@ -44,7 +44,7 @@ const rugbyPositions = [
 ];
 
 export default function RosterPage() {
-	const { id } = useParams();
+	const { id } = useParams<{ id: string }>();
 	const [roster, setRoster] = useState(
 		rugbyPositions.map((position) => ({ positionId: position.positionId, player: "" })),
 	);
