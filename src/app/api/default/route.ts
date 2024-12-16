@@ -10,9 +10,9 @@ export const GET = async () => {
 		const { organizationId } = await handleAuth(true);
 		const defaultImages = await getDefaultImages(organizationId as string);
 		const response = defaultImagesResponseSchema.parse({
-			post: defaultImages[0]?.postUrl,
-			story: defaultImages[0]?.storyUrl,
-			player: defaultImages[0]?.playerUrl,
+			post: defaultImages.postUrl,
+			story: defaultImages.storyUrl,
+			player: defaultImages.playerUrl,
 		});
 		return NextResponse.json({ post: response.post, story: response.story, player: response.player }, { status: 200 });
 	} catch (error) {
@@ -39,21 +39,21 @@ export const POST = async (req: NextRequest) => {
 		console.log("defaultImages", defaultImages);
 
 		if (request.post) {
-			if (defaultImages[0]?.postUrl) await deleteFromBlob(defaultImages[0]?.postUrl);
+			if (defaultImages.postUrl) await deleteFromBlob(defaultImages.postUrl);
 			postUrl = await uploadToBlob({
 				fileName: "post",
 				file: request.post,
 			});
 		}
 		if (request.story) {
-			if (defaultImages[0]?.storyUrl) await deleteFromBlob(defaultImages[0]?.storyUrl);
+			if (defaultImages.storyUrl) await deleteFromBlob(defaultImages.storyUrl);
 			storyUrl = await uploadToBlob({
 				fileName: "story",
 				file: request.story,
 			});
 		}
 		if (request.player) {
-			if (defaultImages[0]?.playerUrl) await deleteFromBlob(defaultImages[0]?.playerUrl);
+			if (defaultImages.playerUrl) await deleteFromBlob(defaultImages.playerUrl);
 			playerUrl = await uploadToBlob({
 				fileName: "player",
 				file: request.player,

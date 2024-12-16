@@ -7,16 +7,15 @@ const getFrontendRoutes = () => {
 	return routes.map((route) => route.url);
 };
 
-const fronendRoutes = getRouteMatcher(getFrontendRoutes());
+const frontendRoutes = getRouteMatcher(getFrontendRoutes());
 
 export default clerkMiddleware(async (auth, req) => {
 	const { userId } = await auth();
 	if (userId) {
-		console.log("no user id");
 		const organizations = await (await clerkClient()).users.getOrganizationMembershipList({
 			userId: userId,
 		});
-		if (fronendRoutes(req.nextUrl.pathname) && organizations.totalCount < 1) {
+		if (frontendRoutes(req.nextUrl.pathname) && organizations.totalCount < 1) {
 			return NextResponse.redirect(new URL("/no-organisation", req.url));
 		}
 	}

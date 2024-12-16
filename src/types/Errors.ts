@@ -46,4 +46,5 @@ export class AuthError extends Error {
 export enum AuthErrorType {
 	Unauthorized = "Unauthorized",
 	NoOrganization = "NoOrganization",
+	NoToken = "NoToken",
 }

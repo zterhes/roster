@@ -255,6 +255,18 @@ export const fetchRoster = {
 	key: "fetchRoster",
 };
 
+export const generateMatchImages = {
+	fn: async (matchId: number) => {
+		try {
+			const response = await axios.get(`/api/image-generator/match/${matchId}`);
+			return response.status;
+		} catch (error) {
+			throw handleError(error, `/api/image-generator/match/${matchId}`);
+		}
+	},
+	key: "generateMatchImages",
+};
+
 const handleError = (error: unknown, route: string) => {
 	console.error(error);
 	if (error instanceof ZodError) {

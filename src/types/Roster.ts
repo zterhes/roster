@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { playerSchema } from "./Player";
 
 export const createRosterRequestSchema = z.object({
 	matchId: z.number(),
@@ -10,14 +11,21 @@ export const createRosterRequestSchema = z.object({
 	),
 });
 
-export const getRosterResponseSchema = z.array(
-	z.object({
-		rosterId: z.number(),
-		playerId: z.number(),
-		positionId: z.number(),
-		matchId: z.number(),
-	}),
-);
+export const rosterSchema = z.object({
+	rosterId: z.number(),
+	playerId: z.number(),
+	positionId: z.number(),
+	matchId: z.number(),
+});
+
+export const getRosterResponseSchema = z.array(rosterSchema);
+
+export const getPlayerByRosterSchema = z.object({
+	roster: rosterSchema,
+	player: playerSchema,
+});
+
+export type GetPlayerByRoster = z.infer<typeof getPlayerByRosterSchema>;
 
 export const rosterDaoSchema = z.object({
 	id: z.number().optional(),

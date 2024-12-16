@@ -7,7 +7,6 @@ type Blob = {
 };
 
 export const uploadToBlob = async (request: Blob) => {
-	console.log("request", request);
 	const blob = await put(request.fileName, request.file, {
 		access: "public",
 	});

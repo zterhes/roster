@@ -1,5 +1,5 @@
 import { drizzle } from "drizzle-orm/vercel-postgres";
-import { defaultsTable, playersTable } from "./schema";
+import { defaultsTable, playersTable, rosterTable } from "./schema";
 import { PersistationError, PersistationErrorType } from "@/types/Errors";
 import { eq } from "drizzle-orm";
 import type { UpdatePlayerDto } from "@/types/Player";
@@ -35,8 +35,8 @@ export const updatePlayer = async (player: UpdatePlayerDto): Promise<{ id: numbe
 	return result[0];
 };
 
-export const getAllPlayers = async () => {
-	const result = await db.select().from(playersTable);
+export const getAllPlayers = async (organizationId: string) => {
+	const result = await db.select().from(playersTable).where(eq(playersTable.organizationId, organizationId));
 	return result;
 };
 
@@ -64,5 +64,17 @@ export const updateDefaultImages = async (organizationId: string, post?: string,
 
 export const getDefaultImages = async (organizationId: string) => {
 	const result = await db.select().from(defaultsTable).where(eq(defaultsTable.organizationId, organizationId));
+	if (result.length === 0) throw new PersistationError(PersistationErrorType.NotFound, "No default images found");
+	return result[0];
+};
+
+export const selectRosterByMatchId = async (matchId: string) => {
+	const result = await db
+		.select()
+		.from(rosterTable)
+		.where(eq(rosterTable.matchId, Number(matchId)));
+
+	if (result.length === 0)
+		throw new PersistationError(PersistationErrorType.NotFound, "No roster found to this match id");
 	return result;
 };

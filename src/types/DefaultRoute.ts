@@ -10,7 +10,7 @@ export const updateDefaultImagesRequestSchema = z.object({
 export type UpdateDefaultImagesRequest = z.infer<typeof updateDefaultImagesRequestSchema>;
 
 export const defaultImagesResponseSchema = z.object({
-	post: z.string(),
-	story: z.string(),
-	player: z.string(),
+	post: z.string().url(),
+	story: z.string().url(),
+	player: z.string().url(),
 });
