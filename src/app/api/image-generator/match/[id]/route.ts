@@ -179,7 +179,7 @@ const createTextOverlay = (text: string, isFirstName: boolean, padding: number) 
 	ctx.font = font;
 
 	// Draw text, centered with padding
-	ctx.fillText(text, padding, fontSize + padding - 5);
+	ctx.fillText(text, padding, fontSize + padding / 2);
 
 	return { buffer: canvas.toBuffer(), textWidth };
 };
