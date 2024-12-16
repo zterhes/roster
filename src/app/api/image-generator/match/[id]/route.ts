@@ -70,7 +70,6 @@ const generateImages = async (
 	};
 	const paddingBetweenTexts = 10;
 	for (let index = 0; index < roster.length; index++) {
-		const name = `${roster[index].roster.positionId + 1}. ${roster[index].player.firstName} ${roster[index].player.lastName}`;
 		const { buffer: textOverlayFN, textWidth } = createTextOverlay(roster[index].player.firstName, true, 10);
 		const { buffer: textOverlayLN } = createTextOverlay(roster[index].player.lastName, false, 10);
 		const { buffer: textOverlayPos, textWidth: posTextWidth } = createTextOverlay(
@@ -91,7 +90,6 @@ const generateImages = async (
 				left: 80 + Math.ceil(textWidth + posTextWidth) + paddingBetweenTexts,
 			});
 		} else {
-			console.log("index - numberOfStarters", index - numberOfStarters);
 			overlayBuffers.push({
 				input: textOverlayPos,
 				top: staringHigh.bench + (index - numberOfStarters) * 60,
