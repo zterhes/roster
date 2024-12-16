@@ -8,7 +8,7 @@ import {
 	PersistationError,
 	PersistationErrorType,
 } from "@/types/Errors";
-import { db, getAllPlayers, getDefaultImages, selectRosterByMatchId } from "@/db";
+import { db, getDefaultImages } from "@/db";
 import { playersTable, rosterTable } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { type GetPlayerByRoster, getPlayerByRosterSchema, getRosterResponseSchema } from "@/types/Roster";
@@ -19,6 +19,8 @@ const imageSize = {
 	post: { width: 1200, height: 630 },
 	story: { width: 1080, height: 1920 },
 };
+
+const numberOfStarters = 15;
 
 type Overlay = {
 	input: Buffer;
@@ -37,15 +39,15 @@ export const GET = async (_request: Request, { params }: { params: Promise<{ id:
 			throw new PersistationError(PersistationErrorType.NotFound, "No default images found for this organization");
 		}
 
-		const [buffers, roster] = await Promise.all([
+		let [buffers, roster] = await Promise.all([
 			downloadImages(defaultImages.storyUrl, defaultImages.postUrl),
 			getRoster(matchId, organizationId as string),
 		]);
-
+		roster = roster.sort((a, b) => a.roster.positionId - b.roster.positionId);
 		const imageBuffer = await generateImages(buffers.story, buffers.post, roster);
 		const blobUrl = await uploadToBlob({
 			file: imageBuffer,
-			fileName: "generated-image",
+			fileName: "story_roster_image",
 		});
 
 		console.log("bloburl", blobUrl);
@@ -58,17 +60,61 @@ export const GET = async (_request: Request, { params }: { params: Promise<{ id:
 
 const generateImages = async (
 	storyBackgroundBuffer: Buffer<ArrayBufferLike>,
-	postBackgroundBuffer: Buffer<ArrayBufferLike>,
+	_postBackgroundBuffer: Buffer<ArrayBufferLike>,
 	roster: GetPlayerByRoster[],
 ) => {
 	const overlayBuffers: Overlay[] = [];
-	const textOverlay = createTextOverlay("Hello World", imageSize.story.width, imageSize.story.height);
-	overlayBuffers.push({ input: textOverlay, top: 200, left: 50 });
+	const staringHigh = {
+		starter: 172,
+		bench: 500,
+	};
+	const paddingBetweenTexts = 10;
+	for (let index = 0; index < roster.length; index++) {
+		const name = `${roster[index].roster.positionId + 1}. ${roster[index].player.firstName} ${roster[index].player.lastName}`;
+		const { buffer: textOverlayFN, textWidth } = createTextOverlay(roster[index].player.firstName, true, 10);
+		const { buffer: textOverlayLN } = createTextOverlay(roster[index].player.lastName, false, 10);
+		const { buffer: textOverlayPos, textWidth: posTextWidth } = createTextOverlay(
+			`${roster[index].roster.positionId + 1}.`,
+			false,
+			10,
+		);
+		if (index < numberOfStarters) {
+			overlayBuffers.push({ input: textOverlayPos, top: staringHigh.starter + index * 60, left: 80 });
+			overlayBuffers.push({
+				input: textOverlayFN,
+				top: staringHigh.starter + index * 60,
+				left: 80 + Math.ceil(posTextWidth),
+			});
+			overlayBuffers.push({
+				input: textOverlayLN,
+				top: staringHigh.starter + index * 60,
+				left: 80 + Math.ceil(textWidth + posTextWidth) + paddingBetweenTexts,
+			});
+		} else {
+			console.log("index - numberOfStarters", index - numberOfStarters);
+			overlayBuffers.push({
+				input: textOverlayPos,
+				top: staringHigh.bench + (index - numberOfStarters) * 60,
+				left: 605,
+			});
+			overlayBuffers.push({
+				input: textOverlayFN,
+				top: staringHigh.bench + (index - numberOfStarters) * 60,
+				left: 605 + Math.ceil(posTextWidth),
+			});
+			overlayBuffers.push({
+				input: textOverlayLN,
+				top: staringHigh.bench + (index - numberOfStarters) * 60,
+				left: 605 + Math.ceil(textWidth + posTextWidth) + paddingBetweenTexts,
+			});
+		}
+	}
+
 	const storyImageBuffer = await sharp(storyBackgroundBuffer).composite(overlayBuffers).png().toBuffer();
 	return new File([storyImageBuffer], "story.png", { type: "image/png" });
 };
 
-const getRoster = async (matchId: string, organizationId: string): Promise<GetPlayerByRoster[]> => {
+const getRoster = async (matchId: string, _organizationId: string): Promise<GetPlayerByRoster[]> => {
 	const result = await db
 		.select()
 		.from(rosterTable)
@@ -111,13 +157,31 @@ const downloadImages = async (story: string, post: string) => {
 	return { story: Buffer.from(sArrbuff), post: Buffer.from(pArrbuff) };
 };
 
-const createTextOverlay = (text: string, width: number, height: number): Buffer => {
+const createTextOverlay = (text: string, isFirstName: boolean, padding: number) => {
+	const fontSize = 43;
+	const font = `bold ${fontSize}px Open Sans`;
+	const tempCanvas = createCanvas(1, 1);
+	const tempCtx = tempCanvas.getContext("2d");
+	tempCtx.font = font;
+	const textWidth = tempCtx.measureText(text).width;
+
+	// Dynamically calculate canvas size
+	const width = textWidth + padding * 2; // Add horizontal padding
+	const height = fontSize + padding * 2; // Add vertical padding based on font size
+
+	// Create the actual canvas
 	const canvas = createCanvas(width, height);
 	const ctx = canvas.getContext("2d");
 
-	ctx.fillStyle = "white";
-	ctx.font = "42.56px Arial";
-	ctx.fillText(text, 10, 30);
+	if (isFirstName) {
+		ctx.fillStyle = "#38b6ff";
+	} else {
+		ctx.fillStyle = "#ffffff";
+	}
+	ctx.font = font;
 
-	return canvas.toBuffer();
+	// Draw text, centered with padding
+	ctx.fillText(text, padding, fontSize + padding - 5);
+
+	return { buffer: canvas.toBuffer(), textWidth };
 };

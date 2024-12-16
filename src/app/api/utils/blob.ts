@@ -18,6 +18,5 @@ export const uploadToBlob = async (request: Blob) => {
 };
 
 export const deleteFromBlob = async (url: string) => {
-	console.log("url", url);
 	await del(url);
 };
