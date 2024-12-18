@@ -1,9 +1,9 @@
 import { createPlayer, getAllPlayers, getDefaultImages } from "@/db";
 import { createPlayerRequestSchema } from "@/types/Player";
 import { type NextRequest, NextResponse } from "next/server";
-import { uploadToBlob } from "../utils/blob";
+import { uploadToBlob } from "../../../lib/blob";
 import { handleError } from "@/lib/utils";
-import { handleAuth } from "../utils/auth";
+import { handleAuth } from "../../../lib/auth";
 import { PersistationError, PersistationErrorType } from "@/types/Errors";
 import { or } from "drizzle-orm";
 export const POST = async (req: NextRequest) => {

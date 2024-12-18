@@ -4,8 +4,8 @@ import { updatePlayerRequestSchema } from "@/types/Player";
 import { updatePlayer } from "@/db";
 
 import { PersistationError } from "@/types/Errors";
-import { uploadToBlob } from "../../utils/blob";
-import { handleAuth } from "../../utils/auth";
+import { uploadToBlob } from "../../../../lib/blob";
+import { handleAuth } from "../../../../lib/auth";
 
 export const POST = async (request: Request, { params }: { params: Promise<{ id: string }> }) => {
 	try {

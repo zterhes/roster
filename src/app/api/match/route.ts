@@ -1,12 +1,12 @@
 import { handleError } from "@/lib/utils";
-import { handleAuth } from "../utils/auth";
+import { handleAuth } from "../../../lib/auth";
 import { type NextRequest, NextResponse } from "next/server";
 import { createMatchRequestSchema, matchSchema } from "@/types/Match";
 import { db } from "@/db";
 import { eq } from "drizzle-orm";
 import { matchesTable } from "@/db/schema";
 import { PersistationError, PersistationErrorType } from "@/types/Errors";
-import { uploadToBlob } from "../utils/blob";
+import { uploadToBlob } from "../../../lib/blob";
 
 export const GET = async () => {
 	try {

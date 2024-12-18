@@ -1,5 +1,5 @@
 import { handleError } from "@/lib/utils";
-import { handleAuth } from "../utils/auth";
+import { handleAuth } from "../../../lib/auth";
 import { type NextRequest, NextResponse } from "next/server";
 import { createRosterRequestSchema, type RosterDao, rosterDaoSchema } from "@/types/Roster";
 import { db } from "@/db";

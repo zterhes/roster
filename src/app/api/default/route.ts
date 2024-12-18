@@ -1,9 +1,9 @@
 import { handleError } from "@/lib/utils";
 import { type NextRequest, NextResponse } from "next/server";
-import { handleAuth } from "../utils/auth";
+import { handleAuth } from "../../../lib/auth";
 import { defaultImagesResponseSchema, updateDefaultImagesRequestSchema } from "@/types/DefaultRoute";
 import { getDefaultImages, updateDefaultImages } from "@/db";
-import { deleteFromBlob, uploadToBlob } from "../utils/blob";
+import { deleteFromBlob, uploadToBlob } from "../../../lib/blob";
 
 export const GET = async () => {
 	try {
