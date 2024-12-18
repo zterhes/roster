@@ -1,8 +1,11 @@
 import type { Match } from "@/types/Match";
 import type { GetPlayerByRoster } from "@/types/Roster";
-import { createCanvas } from "canvas";
+import { createCanvas, registerFont } from "canvas";
 import { format } from "date-fns";
+import { is } from "drizzle-orm";
 import sharp from "sharp";
+
+registerFont("src/lib/VV2Nightclub.otf", { family: "CustomFont" });
 
 const imageSize = {
 	post: { width: 1200, height: 630 },
@@ -18,7 +21,10 @@ const numberOfStarters = 15;
 
 const sizes = {
 	textRowDivHigh: 60,
-	fontSize: 39,
+	fontSize: {
+		player: 39,
+		matchData: 80,
+	},
 	horzontalPaddingBetweenTexts: 10,
 	fontPadding: 10,
 	divHorizontalLeftPadding: {
@@ -39,25 +45,30 @@ export const rosterStoryImageGenerator = async (
 	match: Match,
 ) => {
 	const overlayBuffers: Overlay[] = [];
+
+	//creating and positioning player overlays
 	for (let index = 0; index < roster.length; index++) {
+		//creating text overlays
 		const { buffer: textOverlayFN, textWidth } = createTextOverlay(
 			roster[index].player.firstName,
 			true,
 			sizes.fontPadding,
-			sizes.fontSize,
+			sizes.fontSize.player,
 		);
 		const { buffer: textOverlayLN } = createTextOverlay(
 			roster[index].player.lastName,
 			false,
 			sizes.fontPadding,
-			sizes.fontSize,
+			sizes.fontSize.player,
 		);
 		const { buffer: textOverlayPos, textWidth: posTextWidth } = createTextOverlay(
 			`${roster[index].roster.positionId + 1}.`,
 			false,
 			sizes.fontPadding,
-			sizes.fontSize,
+			sizes.fontSize.player,
 		);
+
+		//overlay positioning
 		if (index < numberOfStarters) {
 			overlayBuffers.push({
 				input: textOverlayPos,
@@ -99,9 +110,14 @@ export const rosterStoryImageGenerator = async (
 		}
 	}
 
-	const matchDataPosition = staringHigh.starter + numberOfStarters * sizes.textRowDivHigh + sizes.textRowDivHigh * 3;
+	//creating and positioning match data
+	const matchDataPosition = staringHigh.starter + numberOfStarters * sizes.textRowDivHigh + sizes.textRowDivHigh * 2;
 
-	const { dateTimeOverlay, dateWidth, placeOverlay, placeWidth } = createMatchDataOverlay(match, 10, 55);
+	const { dateTimeOverlay, dateWidth, placeOverlay, placeWidth } = createMatchDataOverlay(
+		match,
+		sizes.fontPadding,
+		sizes.fontSize.matchData,
+	);
 	overlayBuffers.push({
 		input: dateTimeOverlay,
 		top: matchDataPosition,
@@ -109,10 +125,11 @@ export const rosterStoryImageGenerator = async (
 	});
 	overlayBuffers.push({
 		input: placeOverlay,
-		top: matchDataPosition + sizes.textRowDivHigh,
+		top: matchDataPosition + sizes.textRowDivHigh + 20,
 		left: textCenter(placeWidth, imageSize.story.width),
 	});
 
+	//generate final image
 	const storyImageBuffer = await sharp(storyBackgroundBuffer).composite(overlayBuffers).png().toBuffer();
 	return new File([storyImageBuffer], "story.png", { type: "image/png" });
 };
@@ -124,14 +141,14 @@ const textCenter = (textWidth: number, divWidth: number) => {
 
 const createMatchDataOverlay = (match: Match, padding: number, fontSize: number) => {
 	const date = format(match.date, "yyyy/MM/dd hh:mm");
-	console.log("date", date);
-	const { buffer: dateTimeOverlay, textWidth: dateWidth } = createTextOverlay(date, false, padding, fontSize);
+	const { buffer: dateTimeOverlay, textWidth: dateWidth } = createTextOverlay(date, false, padding, fontSize, true);
 
 	const { buffer: placeOverlay, textWidth: placeWidth } = createTextOverlay(
 		match.place.toUpperCase(),
 		false,
 		padding,
 		fontSize,
+		true,
 	);
 
 	return {
@@ -142,8 +159,14 @@ const createMatchDataOverlay = (match: Match, padding: number, fontSize: number)
 	};
 };
 
-const createTextOverlay = (text: string, isFirstName: boolean, padding: number, fontSize: number) => {
-	const font = `bold ${fontSize}px Open Sans`;
+const createTextOverlay = (
+	text: string,
+	isFirstName: boolean,
+	padding: number,
+	fontSize: number,
+	isMatchData?: boolean,
+) => {
+	const font = isMatchData ? `bold ${fontSize}px CustomFont` : `bold ${fontSize}px Open Sans`;
 	const tempCanvas = createCanvas(1, 1);
 	const tempCtx = tempCanvas.getContext("2d");
 	tempCtx.font = font;
