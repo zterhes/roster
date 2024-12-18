@@ -1,9 +1,7 @@
 import { NextResponse } from "next/server";
-import { handleAuth } from "../../utils/auth";
+import { handleAuth } from "../../../../lib/auth";
 import { handleError } from "@/lib/utils";
-import { rosterTable } from "@/db/schema";
-import { eq } from "drizzle-orm";
-import { db, selectRosterByMatchId } from "@/db";
+import { selectRosterByMatchId } from "@/db";
 
 export const GET = async (_request: Request, { params }: { params: Promise<{ id: string }> }) => {
 	try {
