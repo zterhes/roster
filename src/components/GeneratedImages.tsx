@@ -12,10 +12,6 @@ type Props = {
 };
 
 export default function GeneratedImages({ triggerImgGen, enabled, imagesData }: Props) {
-	const handleDialogOpen = (player?: Player) => {
-		setEditingPlayer(player ? player : undefined);
-		setIsDialogOpen(true);
-	};
 	return (
 		<div className=" flex items-center justify-around">
 			<h4 className="mb-2 font-semibold text-slate-400">Match Images</h4>
