@@ -16,6 +16,7 @@ export enum PersistationErrorType {
 	UpdateError = "UpdateError",
 	BlobError = "BlobError",
 	NotFound = "NotFound",
+	AlreadyExists = "AlreadyExists",
 }
 
 export class ClientServerCallError extends Error {

@@ -1,0 +1,2 @@
+CREATE TYPE "public"."generated_images_types" AS ENUM('story_roster_image', 'post_roster_image', 'story_score_image', 'post_score_image');--> statement-breakpoint
+ALTER TABLE "generated_images" ADD COLUMN "type" "generated_images_types" NOT NULL;

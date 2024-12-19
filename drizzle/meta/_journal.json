@@ -64,6 +64,20 @@
       "when": 1733838048672,
       "tag": "0008_cheerful_shiver_man",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1734562597447,
+      "tag": "0009_daffy_paladin",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1734563809066,
+      "tag": "0010_marvelous_typhoid_mary",
+      "breakpoints": true
     }
   ]
 }

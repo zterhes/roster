@@ -8,10 +8,10 @@ import {
 	PersistationErrorType,
 } from "@/types/Errors";
 import { db, getDefaultImages, selectMatchByMatchId } from "@/db";
-import { playersTable, rosterTable } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { generatedImagesTable, playersTable, rosterTable } from "@/db/schema";
+import { and, eq } from "drizzle-orm";
 import { type GetPlayerByRoster, getPlayerByRosterSchema } from "@/types/Roster";
-import { uploadToBlob } from "@/lib/blob";
+import { deleteFromBlob, uploadToBlob } from "@/lib/blob";
 import { rosterStoryImageGenerator } from "@/lib/imageGenerators";
 
 export const GET = async (_request: Request, { params }: { params: Promise<{ id: string }> }) => {
@@ -37,8 +37,21 @@ export const GET = async (_request: Request, { params }: { params: Promise<{ id:
 			uploadToBlob({ file: storyImageBuffer, fileName: "story_roster_image" }),
 		]);
 
-		console.log("storyImageUrl", storyImageUrl);
+		const result = await db
+			.update(generatedImagesTable)
+			.set({ imageUrl: storyImageUrl, status: "generated" })
+			.where(
+				and(eq(generatedImagesTable.type, "story_roster_image"), eq(generatedImagesTable.matchId, Number(matchId))),
+			)
+			.returning({
+				id: generatedImagesTable.id,
+			});
 
+		if (result.length === 0) {
+			await deleteFromBlob(storyImageUrl);
+			throw new PersistationError(PersistationErrorType.CreateError, "Error creating story image");
+		}
+		console.log("storyImageUrl", storyImageUrl);
 		return NextResponse.json({ status: 200 });
 	} catch (error) {
 		return handleError(error);
