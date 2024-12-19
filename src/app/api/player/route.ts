@@ -5,7 +5,6 @@ import { uploadToBlob } from "../../../lib/blob";
 import { handleError } from "@/lib/utils";
 import { handleAuth } from "../../../lib/auth";
 import { PersistationError, PersistationErrorType } from "@/types/Errors";
-import { or } from "drizzle-orm";
 export const POST = async (req: NextRequest) => {
 	try {
 		const { organizationId } = await handleAuth(true);

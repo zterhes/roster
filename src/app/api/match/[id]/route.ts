@@ -7,7 +7,7 @@ import { eq } from "drizzle-orm";
 import { matchesTable } from "@/db/schema";
 import { db, selectMatchByMatchId } from "@/db";
 import { PersistationError, PersistationErrorType } from "@/types/Errors";
-import { matchSchema, updateMatchRequestSchema } from "@/types/Match";
+import { updateMatchRequestSchema } from "@/types/Match";
 
 export const GET = async (_request: Request, { params }: { params: Promise<{ id: string }> }) => {
 	try {

@@ -2,7 +2,6 @@ import type { Match } from "@/types/Match";
 import type { GetPlayerByRoster } from "@/types/Roster";
 import { createCanvas, registerFont } from "canvas";
 import { format } from "date-fns";
-import { is } from "drizzle-orm";
 import sharp from "sharp";
 
 registerFont("src/lib/VV2Nightclub.otf", { family: "CustomFont" });

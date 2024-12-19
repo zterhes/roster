@@ -2,7 +2,6 @@ import type { GeneratedImage } from "@/types/GeneratedImage";
 import { Button } from "./ui/button";
 import { Dialog, DialogContent } from "./ui/dialog";
 import { useState } from "react";
-import { set } from "date-fns";
 import Image from "next/image";
 
 type Props = {

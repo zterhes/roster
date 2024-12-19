@@ -2,7 +2,7 @@ import { AuthError, AuthErrorType } from "@/types/Errors";
 import { auth, clerkClient } from "@clerk/nextjs/server";
 import type { UserAuthData } from "@/types/Auth";
 
-export const handleAuth = async (withOrganization?: boolean, withToken?: boolean): Promise<UserAuthData> => {
+export const handleAuth = async (withOrganization?: boolean): Promise<UserAuthData> => {
 	const { userId } = await auth();
 
 	if (!userId) {

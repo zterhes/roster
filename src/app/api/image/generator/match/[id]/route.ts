@@ -25,11 +25,13 @@ export const GET = async (_request: Request, { params }: { params: Promise<{ id:
 			throw new PersistationError(PersistationErrorType.NotFound, "No default images found for this organization");
 		}
 
-		let [buffers, roster, match] = await Promise.all([
+		const [buffers, tempRoster, match] = await Promise.all([
 			downloadImages(defaultImages.storyUrl, defaultImages.postUrl),
-			getRoster(matchId, organizationId as string),
+			getRoster(matchId),
 			selectMatchByMatchId(organizationId as string, matchId),
 		]);
+
+		let roster = tempRoster; // needed because of crying linter
 
 		roster = roster.sort((a, b) => a.roster.positionId - b.roster.positionId);
 		const [storyImageBuffer] = await Promise.all([await rosterStoryImageGenerator(buffers.story, roster, match)]);
@@ -58,7 +60,7 @@ export const GET = async (_request: Request, { params }: { params: Promise<{ id:
 	}
 };
 
-const getRoster = async (matchId: string, _organizationId: string): Promise<GetPlayerByRoster[]> => {
+const getRoster = async (matchId: string): Promise<GetPlayerByRoster[]> => {
 	const result = await db
 		.select()
 		.from(rosterTable)
