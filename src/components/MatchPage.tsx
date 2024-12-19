@@ -18,10 +18,11 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import type React from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { fetchMatchById, createMatch, updateMatch } from "@/lib/apiService";
+import { fetchMatchById, createMatch, updateMatch, generateMatchImages, getMatchImages } from "@/lib/apiService";
 import { DateTimePicker } from "@/components/ui/datetime-picker";
 import { toast } from "@/hooks/use-toast";
 import Link from "next/link";
+import GeneratedImages from "./GeneratedImages";
 
 type Props = {
 	id?: string;
@@ -39,6 +40,12 @@ export default function MatchPage({ id }: Props) {
 		queryKey: ["fetchMatchById", id as string],
 		queryFn: () => fetchMatchById.fn(id as string),
 		enabled: isEditing,
+	});
+
+	const { refetch: triggerImgGen } = useQuery({
+		queryKey: [generateMatchImages.key, id as string],
+		queryFn: () => generateMatchImages.fn(Number.parseInt(id as string) as number),
+		enabled: false,
 	});
 
 	const { mutate: createMatchMutation } = useMutation({
@@ -62,6 +69,11 @@ export default function MatchPage({ id }: Props) {
 	const { mutate: updateMatchMutation } = useMutation({
 		mutationKey: ["updateMatch"],
 		mutationFn: (request: UpdateMatchRequestValues) => updateMatch.fn(request, Number(id)),
+	});
+
+	const { data: images } = useQuery({
+		queryKey: [getMatchImages.key, id as string],
+		queryFn: () => getMatchImages.fn(Number(id)),
 	});
 
 	const {
@@ -116,8 +128,6 @@ export default function MatchPage({ id }: Props) {
 			createMatchMutation(data);
 		}
 	};
-
-	console.log("match", match);
 
 	return (
 		<div className="min-h-screen max-w-4xl mx-auto text-slate-50 p-6">
@@ -309,13 +319,20 @@ export default function MatchPage({ id }: Props) {
 				<CardHeader>
 					<CardTitle className="text-[#00A3FF]">Match Details</CardTitle>
 				</CardHeader>
-				<CardContent>
+				<CardContent className="flex gap-10 flex-col">
 					<Link href={`/roster/${match?.id}`} className=" flex items-center justify-around">
 						<h4 className="mb-2 font-semibold text-slate-400">Roster</h4>
 						<Button variant={"roster"}>
 							{!match || match.rosterStatus === rosterEnum.Values.not_created ? "Add Roster" : "View Roster"}
 						</Button>
 					</Link>
+					{images && (
+						<GeneratedImages
+							triggerImgGen={triggerImgGen}
+							enabled={!match || match.rosterStatus === rosterEnum.Values.not_created}
+							imagesData={images}
+						/>
+					)}
 				</CardContent>
 			</Card>
 		</div>

@@ -1,12 +1,12 @@
 import { handleError } from "@/lib/utils";
-import { handleAuth } from "../utils/auth";
+import { handleAuth } from "../../../lib/auth";
 import { type NextRequest, NextResponse } from "next/server";
 import { createMatchRequestSchema, matchSchema } from "@/types/Match";
 import { db } from "@/db";
 import { eq } from "drizzle-orm";
-import { matchesTable } from "@/db/schema";
+import { generatedImagesTable, matchesTable } from "@/db/schema";
 import { PersistationError, PersistationErrorType } from "@/types/Errors";
-import { uploadToBlob } from "../utils/blob";
+import { uploadToBlob } from "../../../lib/blob";
 
 export const GET = async () => {
 	try {
@@ -72,8 +72,23 @@ export const POST = async (req: NextRequest) => {
 				organizationId: organizationId,
 			})
 			.returning({ id: matchesTable.id });
-
 		PersistationError.handleError(createdMatch[0], PersistationErrorType.CreateError);
+
+		const createdImage = await db
+			.insert(generatedImagesTable)
+			.values([
+				{
+					matchId: createdMatch[0].id,
+					type: "story_roster_image",
+				},
+				{
+					matchId: createdMatch[0].id,
+					type: "post_roster_image",
+				},
+			])
+			.returning({ id: generatedImagesTable.id });
+		PersistationError.handleError(createdImage[0], PersistationErrorType.CreateError);
+
 		const response = createdMatch[0];
 		return NextResponse.json({ ...response }, { status: 200 });
 	} catch (error) {

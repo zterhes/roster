@@ -7,7 +7,6 @@ type Blob = {
 };
 
 export const uploadToBlob = async (request: Blob) => {
-	console.log("request", request);
 	const blob = await put(request.fileName, request.file, {
 		access: "public",
 	});
@@ -19,6 +18,5 @@ export const uploadToBlob = async (request: Blob) => {
 };
 
 export const deleteFromBlob = async (url: string) => {
-	console.log("url", url);
 	await del(url);
 };

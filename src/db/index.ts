@@ -1,8 +1,9 @@
 import { drizzle } from "drizzle-orm/vercel-postgres";
-import { defaultsTable, playersTable } from "./schema";
+import { defaultsTable, playersTable, rosterTable, matchesTable } from "./schema";
 import { PersistationError, PersistationErrorType } from "@/types/Errors";
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import type { UpdatePlayerDto } from "@/types/Player";
+import { matchSchema } from "@/types/Match";
 
 export const db = drizzle();
 
@@ -35,8 +36,8 @@ export const updatePlayer = async (player: UpdatePlayerDto): Promise<{ id: numbe
 	return result[0];
 };
 
-export const getAllPlayers = async () => {
-	const result = await db.select().from(playersTable);
+export const getAllPlayers = async (organizationId: string) => {
+	const result = await db.select().from(playersTable).where(eq(playersTable.organizationId, organizationId));
 	return result;
 };
 
@@ -64,5 +65,34 @@ export const updateDefaultImages = async (organizationId: string, post?: string,
 
 export const getDefaultImages = async (organizationId: string) => {
 	const result = await db.select().from(defaultsTable).where(eq(defaultsTable.organizationId, organizationId));
+	if (result.length === 0) throw new PersistationError(PersistationErrorType.NotFound, "No default images found");
+	return result[0];
+};
+
+export const selectRosterByMatchId = async (matchId: string) => {
+	const result = await db
+		.select()
+		.from(rosterTable)
+		.where(eq(rosterTable.matchId, Number(matchId)));
+
+	if (result.length === 0)
+		throw new PersistationError(PersistationErrorType.NotFound, "No roster found to this match id");
 	return result;
+};
+
+export const selectMatchByMatchId = async (organizationId: string, id: string) => {
+	const result = await db
+		.select()
+		.from(matchesTable)
+		.where(and(eq(matchesTable.id, Number(id)), eq(matchesTable.organizationId, organizationId as string)));
+
+	if (result.length === 0) throw new PersistationError(PersistationErrorType.NotFound, "No match found to this id");
+	return matchSchema.parse({
+		id: result[0].id,
+		homeTeam: { name: result[0].homeTeam, logoUrl: result[0].homeTeamLogoUrl },
+		awayTeam: { name: result[0].awayTeam, logoUrl: result[0].awayTeamLogoUrl },
+		place: result[0].place,
+		date: result[0].date,
+		rosterStatus: result[0].rosterStatus,
+	});
 };

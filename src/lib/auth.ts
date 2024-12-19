@@ -8,6 +8,9 @@ export const handleAuth = async (withOrganization?: boolean): Promise<UserAuthDa
 	if (!userId) {
 		throw new AuthError(AuthErrorType.Unauthorized, "Unauthorized");
 	}
+	const res: UserAuthData = {
+		userId: userId,
+	};
 
 	if (withOrganization) {
 		const organizations = await (await clerkClient()).users.getOrganizationMembershipList({
@@ -16,12 +19,7 @@ export const handleAuth = async (withOrganization?: boolean): Promise<UserAuthDa
 		if (organizations.totalCount === 0) {
 			throw new AuthError(AuthErrorType.NoOrganization, "No organization");
 		}
-		return {
-			userId: userId,
-			organizationId: organizations.data[0].organization.id,
-		};
+		res.organizationId = organizations.data[0].organization.id;
 	}
-	return {
-		userId: userId,
-	};
+	return res;
 };

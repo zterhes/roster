@@ -1,9 +1,9 @@
 import { createPlayer, getAllPlayers, getDefaultImages } from "@/db";
 import { createPlayerRequestSchema } from "@/types/Player";
 import { type NextRequest, NextResponse } from "next/server";
-import { uploadToBlob } from "../utils/blob";
+import { uploadToBlob } from "../../../lib/blob";
 import { handleError } from "@/lib/utils";
-import { handleAuth } from "../utils/auth";
+import { handleAuth } from "../../../lib/auth";
 import { PersistationError, PersistationErrorType } from "@/types/Errors";
 export const POST = async (req: NextRequest) => {
 	try {
@@ -24,7 +24,7 @@ export const POST = async (req: NextRequest) => {
 			});
 		} else {
 			const defaultImages = await getDefaultImages(organizationId as string);
-			if (defaultImages[0]?.playerUrl) blobUrl = defaultImages[0]?.playerUrl;
+			if (defaultImages.playerUrl) blobUrl = defaultImages.playerUrl;
 			else throw new PersistationError(PersistationErrorType.NotFound, "No default player image found");
 		}
 
@@ -38,8 +38,8 @@ export const POST = async (req: NextRequest) => {
 
 export const GET = async () => {
 	try {
-		await handleAuth();
-		const result = await getAllPlayers();
+		const { organizationId } = await handleAuth(true);
+		const result = await getAllPlayers(organizationId as string);
 		return NextResponse.json(result, { status: 200 });
 	} catch (error) {
 		return handleError(error);

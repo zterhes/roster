@@ -49,3 +49,20 @@ export const scoresTable = pgTable("scores", {
 	homeTeamScore: integer("home_team_score").notNull(),
 	awayTeamScore: integer("away_team_score").notNull(),
 });
+
+export const generatedImageStatusEnum = pgEnum("generated_image_status", ["not_generated", "generated", "posted"]);
+export const generatedImagesTypesEnum = pgEnum("generated_images_types", [
+	"story_roster_image",
+	"post_roster_image",
+	"story_score_image",
+	"post_score_image",
+]);
+export const generatedImagesTable = pgTable("generated_images", {
+	id: serial("id").primaryKey(),
+	matchId: integer("match_id")
+		.references(() => matchesTable.id)
+		.notNull(),
+	imageUrl: text("image_url"),
+	type: generatedImagesTypesEnum("type").notNull(),
+	status: generatedImageStatusEnum("status").notNull().default("not_generated"),
+});

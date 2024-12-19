@@ -1,5 +1,5 @@
 import { handleError } from "@/lib/utils";
-import { handleAuth } from "../utils/auth";
+import { handleAuth } from "../../../lib/auth";
 import { type NextRequest, NextResponse } from "next/server";
 import { createRosterRequestSchema, type RosterDao, rosterDaoSchema } from "@/types/Roster";
 import { db } from "@/db";
@@ -24,11 +24,8 @@ export const POST = async (req: NextRequest) => {
 			.transaction(async (tx) => {
 				const select = await tx.select().from(rosterTable).where(eq(rosterTable.matchId, request.matchId));
 				const changedIds = findDifferencies(select, daoList);
-				console.log("changedIds", changedIds);
 				let result: { id: number }[] = [];
 				if (changedIds.length > 0) {
-					console.log("first");
-
 					for (const update of changedIds) {
 						const response = await tx
 							.update(rosterTable)
@@ -50,8 +47,6 @@ export const POST = async (req: NextRequest) => {
 			.catch(() => {
 				throw new PersistationError(PersistationErrorType.CreateError, "Roster already exists, transaction failed");
 			});
-
-		console.log("request");
 
 		const result = await db
 			.update(matchesTable)

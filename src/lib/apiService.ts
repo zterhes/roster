@@ -1,5 +1,6 @@
 import { defaultImagesResponseSchema, type UpdateDefaultImagesRequest } from "@/types/DefaultRoute";
 import { ClientServerCallError, ClientServerCallErrorType } from "@/types/Errors";
+import { generatedImageSchema } from "@/types/GeneratedImage";
 import {
 	type CreateMatchRequestValues,
 	matchesSchema,
@@ -194,7 +195,6 @@ export const createMatch = {
 
 export const updateMatch = {
 	fn: async (request: UpdateMatchRequestValues, id: number) => {
-		console.log("request", request);
 		try {
 			const formData = new FormData();
 			if (request.homeTeam) {
@@ -253,6 +253,30 @@ export const fetchRoster = {
 		}
 	},
 	key: "fetchRoster",
+};
+
+export const generateMatchImages = {
+	fn: async (matchId: number) => {
+		try {
+			const response = await axios.get(`/api/image/generator/match/${matchId}`);
+			return response.status;
+		} catch (error) {
+			throw handleError(error, `/api/image/generator/match/${matchId}`);
+		}
+	},
+	key: "generateMatchImages",
+};
+
+export const getMatchImages = {
+	fn: async (matchId: number) => {
+		try {
+			const response = await axios.get(`/api/image/match/${matchId}`);
+			return generatedImageSchema.array().parse(response.data);
+		} catch (error) {
+			throw handleError(error, `/api/image/match/${matchId}`);
+		}
+	},
+	key: "getMatchImages",
 };
 
 const handleError = (error: unknown, route: string) => {
