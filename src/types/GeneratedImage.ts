@@ -1,10 +1,19 @@
 import { z } from "zod";
 
+const generatedImageTypeSchema = z.enum([
+	"story_roster_image",
+	"post_roster_image",
+	"story_score_image",
+	"post_score_image",
+]);
+
+const generatedImageStatusSchema = z.enum(["generated", "posted", "not_generated"]);
+
 export const generatedImageSchema = z.object({
 	id: z.number(),
 	imageUrl: z.string(),
-	type: z.enum(["story_roster_image", "post_roster_image", "story_score_image", "post_score_image"]),
-	status: z.enum(["generated", "posted", "not_generated"]),
+	type: generatedImageTypeSchema,
+	status: generatedImageStatusSchema,
 	matchId: z.number(),
 });
 
