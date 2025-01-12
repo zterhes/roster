@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { playerSchema } from "./Player";
-import { rosterDaoSchema, rosterSchema } from "./Roster";
+import { rosterSchema } from "./Roster";
 import { Image } from "canvas";
 
 export const playerDtoSchema = z.object({

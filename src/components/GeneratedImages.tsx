@@ -74,7 +74,7 @@ const ImageViewerDialog = ({
 			<DialogContent className="bg-[#0F1C26] border-[#193549] text-white min-w-[80%] min-h-[80%] ">
 				<DialogHeader>
 					<DialogTitle hidden className="text-[#00A3FF]">
-						"{imagesData.type}"
+						{imagesData.type}
 					</DialogTitle>
 				</DialogHeader>
 				<Image src={imagesData.imageUrl} alt="Story Image" layout="fill" objectFit="contain" className="p-4" />
