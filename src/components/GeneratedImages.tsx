@@ -1,6 +1,6 @@
 import type { GeneratedImage } from "@/types/GeneratedImage";
 import { Button } from "./ui/button";
-import { Dialog, DialogContent } from "./ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
 import { useState } from "react";
 import Image from "next/image";
 
@@ -45,7 +45,7 @@ const ImageButtonGroup = ({
 	}
 	if (storyImages[0].status === "generated" && postImages[0].status === "generated") {
 		return (
-			<>
+			<div className="flex flex-col gap-2">
 				<Button variant={"roster"} onClick={() => handleDialogOpen(storyImages[0])}>
 					Look on the story image
 				</Button>
@@ -55,7 +55,7 @@ const ImageButtonGroup = ({
 				{dialogContent && (
 					<ImageViewerDialog isDialogOpen={isDialogOpen} setIsDialogOpen={setIsDialogOpen} imagesData={dialogContent} />
 				)}
-			</>
+			</div>
 		);
 	}
 };
@@ -71,8 +71,13 @@ const ImageViewerDialog = ({
 }) => {
 	return (
 		<Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-			<DialogContent className="bg-[#0F1C26] border-[#193549] text-white">
-				<Image src={imagesData.imageUrl} alt="Story Image" width={500} height={500} className="max-w-full max-h-full" />
+			<DialogContent className="bg-[#0F1C26] border-[#193549] text-white min-w-[80%] min-h-[80%] ">
+				<DialogHeader>
+					<DialogTitle hidden className="text-[#00A3FF]">
+						"{imagesData.type}"
+					</DialogTitle>
+				</DialogHeader>
+				<Image src={imagesData.imageUrl} alt="Story Image" layout="fill" objectFit="contain" className="p-4" />
 			</DialogContent>
 		</Dialog>
 	);
