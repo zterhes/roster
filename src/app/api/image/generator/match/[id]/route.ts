@@ -12,7 +12,8 @@ import { generatedImagesTable, playersTable, rosterTable } from "@/db/schema";
 import { and, eq } from "drizzle-orm";
 import { type GetPlayerByRoster, getPlayerByRosterSchema } from "@/types/Roster";
 import { deleteFromBlob, uploadToBlob } from "@/lib/blob";
-import { rosterStoryImageGenerator } from "@/lib/imageGenerators";
+import { rosterPostImageGenerator, rosterStoryImageGenerator } from "@/lib/imageGenerators";
+import type { GeneratedImageType } from "@/types/GeneratedImage";
 
 export const GET = async (_request: Request, { params }: { params: Promise<{ id: string }> }) => {
 	try {
@@ -34,29 +35,40 @@ export const GET = async (_request: Request, { params }: { params: Promise<{ id:
 		let roster = tempRoster; // needed because of crying linter
 
 		roster = roster.sort((a, b) => a.roster.positionId - b.roster.positionId);
-		const [storyImageBuffer] = await Promise.all([await rosterStoryImageGenerator(buffers.story, roster, match)]);
-		const [storyImageUrl] = await Promise.all([
+		const [storyImageBuffer, postImageBuffer] = await Promise.all([
+			await rosterStoryImageGenerator(buffers.story, roster, match),
+			await rosterPostImageGenerator(buffers.post, roster, match),
+		]);
+		const [storyImageUrl, postImageUrl] = await Promise.all([
 			uploadToBlob({ file: storyImageBuffer, fileName: "story_roster_image" }),
+			uploadToBlob({ file: postImageBuffer, fileName: "post_roster_image" }),
+		]);
+		console.log("postImageUrl", postImageUrl);
+
+		await Promise.all([
+			updateImageTable(matchId, storyImageUrl, "story_roster_image"),
+			updateImageTable(matchId, postImageUrl, "post_roster_image"),
 		]);
 
-		const result = await db
-			.update(generatedImagesTable)
-			.set({ imageUrl: storyImageUrl, status: "generated" })
-			.where(
-				and(eq(generatedImagesTable.type, "story_roster_image"), eq(generatedImagesTable.matchId, Number(matchId))),
-			)
-			.returning({
-				id: generatedImagesTable.id,
-			});
-
-		if (result.length === 0) {
-			await deleteFromBlob(storyImageUrl);
-			throw new PersistationError(PersistationErrorType.CreateError, "Error creating story image");
-		}
 		console.log("storyImageUrl", storyImageUrl);
 		return NextResponse.json({ status: 200 });
 	} catch (error) {
 		return handleError(error);
+	}
+};
+
+const updateImageTable = async (matchId: string, imageUrl: string, type: GeneratedImageType) => {
+	const result = await db
+		.update(generatedImagesTable)
+		.set({ imageUrl: imageUrl, status: "generated" })
+		.where(and(eq(generatedImagesTable.type, type), eq(generatedImagesTable.matchId, Number(matchId))))
+		.returning({
+			id: generatedImagesTable.id,
+		});
+
+	if (result.length === 0) {
+		await deleteFromBlob(imageUrl);
+		throw new PersistationError(PersistationErrorType.CreateError, `Error creating ${type} image`);
 	}
 };
 
