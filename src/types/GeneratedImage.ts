@@ -18,3 +18,4 @@ export const generatedImageSchema = z.object({
 });
 
 export type GeneratedImage = z.infer<typeof generatedImageSchema>;
+export type GeneratedImageType = z.infer<typeof generatedImageTypeSchema>;

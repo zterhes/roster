@@ -49,3 +49,15 @@ export enum AuthErrorType {
 	NoOrganization = "NoOrganization",
 	NoToken = "NoToken",
 }
+
+export class GeneratorError extends Error {
+	type: GeneratorErrorType;
+
+	constructor(type: GeneratorErrorType, message: string) {
+		super(message);
+		this.type = type;
+	}
+}
+export enum GeneratorErrorType {
+	LoadingError = "LoadingError",
+}
