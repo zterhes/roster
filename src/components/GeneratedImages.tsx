@@ -5,7 +5,6 @@ import { useState } from "react";
 import Image from "next/image";
 import { Input } from "./ui/input";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { postImage } from "@/lib/apiService";
@@ -76,14 +75,10 @@ const ImageViewerDialog = ({
 	isDialogOpen: boolean;
 	setIsDialogOpen: (value: boolean) => void;
 }) => {
-	const {
-		register,
-		formState: { errors },
-		handleSubmit,
-	} = useForm<PostMessageBody>({
+	const { register, handleSubmit, reset } = useForm<PostMessageBody>({
 		resolver: zodResolver(postMessageSchema),
 	});
-	console.log("errors", errors);
+
 	const mutation = useMutation({
 		mutationFn: (request: PostMessageBody) => postImage.fn(request),
 		mutationKey: [postImage.key],
@@ -106,11 +101,17 @@ const ImageViewerDialog = ({
 	const onSubmit = (data: PostMessageBody) => {
 		console.log("data", data);
 		mutation.mutate(data);
-		setIsDialogOpen(false);
+		handleDialog(false);
+	};
+
+	const handleDialog = (status: boolean) => {
+		console.log("in handle dialog status: ", status);
+		setIsDialogOpen(status);
+		reset();
 	};
 
 	return (
-		<Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+		<Dialog open={isDialogOpen} onOpenChange={(status) => handleDialog(status)}>
 			<DialogContent className="bg-[#0F1C26] border-[#193549] text-white ">
 				<DialogHeader>
 					<DialogTitle hidden className="text-[#00A3FF]">
@@ -121,13 +122,7 @@ const ImageViewerDialog = ({
 					<Image src={imagesData.imageUrl} alt="Story Image" width={500} height={500} className="p-4" />
 				</div>
 				<form onSubmit={handleSubmit(onSubmit)} className="flex flex-col space-y-4 max-w-lg">
-					<Input id="type" {...register("type")} type="hidden" defaultValue={imagesData.type} />
-					<Input
-						id="imageId"
-						{...register("imageId")}
-						type="hidden"
-						defaultValue={Number.parseInt(imagesData.id.toString())}
-					/>
+					<Input id="imageId" {...register("imageId")} type="hidden" value={imagesData.id} />
 					<Input
 						id="message"
 						{...register("message")}

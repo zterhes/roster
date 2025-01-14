@@ -6,8 +6,8 @@ export class PersistationError extends Error {
 		this.type = type;
 	}
 
-	static handleError(result: { id: number | null }, type: PersistationErrorType) {
-		if (result?.id == null) throw new PersistationError(type, "creation failed");
+	static handleError(result: { id: number | null }, type: PersistationErrorType, message: string) {
+		if (result?.id == null) throw new PersistationError(type, message);
 	}
 }
 
@@ -60,4 +60,5 @@ export class GeneratorError extends Error {
 }
 export enum GeneratorErrorType {
 	LoadingError = "LoadingError",
+	NotGenerated = "NotGenerated",
 }
