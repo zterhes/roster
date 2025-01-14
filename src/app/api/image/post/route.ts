@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { generatedImagesTable } from "@/db/schema";
+import { generatedImagesTable, postsTable } from "@/db/schema";
 import { handleError } from "@/lib/utils";
 import {
 	facebookPostToFeedRequestSchema,
@@ -101,16 +101,13 @@ export const POST = async (req: NextRequest) => {
 		}
 
 		const result = await db
-			.update(generatedImagesTable)
-			.set({ status: "posted" })
-			.where(eq(generatedImagesTable.id, Number(parsedRequest.imageId)))
-			.returning({
-				id: generatedImagesTable.id,
-			});
-
-		if (result[0].id == null) {
-			throw new PersistationError(PersistationErrorType.UpdateError, "Error updating status to posted");
-		}
+			.insert(postsTable)
+			.values({
+				message: parsedRequest.message,
+				imageId: Number(parsedRequest.imageId),
+			})
+			.returning({ id: postsTable.id });
+		PersistationError.handleError(result[0], PersistationErrorType.CreateError, "Error while persisting post");
 
 		const parsedResponse = postMessageResponseSchema.parse(response);
 

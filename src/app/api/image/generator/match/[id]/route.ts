@@ -60,7 +60,7 @@ export const GET = async (_request: Request, { params }: { params: Promise<{ id:
 const updateImageTable = async (matchId: string, imageUrl: string, type: GeneratedImageType) => {
 	const result = await db
 		.update(generatedImagesTable)
-		.set({ imageUrl: imageUrl, status: "generated" })
+		.set({ imageUrl: imageUrl, status: "generated", updatedAt: new Date() })
 		.where(and(eq(generatedImagesTable.type, type), eq(generatedImagesTable.matchId, Number(matchId))))
 		.returning({
 			id: generatedImagesTable.id,
