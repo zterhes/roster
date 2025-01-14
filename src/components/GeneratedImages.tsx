@@ -8,7 +8,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { postImage } from "@/lib/apiService";
-import { type PostMessageBody, postMessageSchema } from "@/types/Post";
+import { type PostMessageRequest, postMessageRequestSchema } from "@/types/Post";
 import { toast } from "@/hooks/use-toast";
 type Props = {
 	triggerImgGen: () => void;
@@ -75,12 +75,12 @@ const ImageViewerDialog = ({
 	isDialogOpen: boolean;
 	setIsDialogOpen: (value: boolean) => void;
 }) => {
-	const { register, handleSubmit, reset } = useForm<PostMessageBody>({
-		resolver: zodResolver(postMessageSchema),
+	const { register, handleSubmit, reset } = useForm<PostMessageRequest>({
+		resolver: zodResolver(postMessageRequestSchema),
 	});
 
 	const mutation = useMutation({
-		mutationFn: (request: PostMessageBody) => postImage.fn(request),
+		mutationFn: (request: PostMessageRequest) => postImage.fn(request),
 		mutationKey: [postImage.key],
 		onSuccess: () => {
 			toast({
@@ -98,7 +98,7 @@ const ImageViewerDialog = ({
 		},
 	});
 
-	const onSubmit = (data: PostMessageBody) => {
+	const onSubmit = (data: PostMessageRequest) => {
 		console.log("data", data);
 		mutation.mutate(data);
 		handleDialog(false);

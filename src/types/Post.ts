@@ -1,11 +1,15 @@
 import { z } from "zod";
 
-export const postMessageSchema = z.object({
+export const postMessageRequestSchema = z.object({
 	message: z.string(),
 	imageId: z.string(),
 });
 
-export type PostMessageBody = z.infer<typeof postMessageSchema>;
+export type PostMessageRequest = z.infer<typeof postMessageRequestSchema>;
+
+export const postMessageResponseSchema = z.object({
+	id: z.string(),
+});
 
 export const facebookPostToFeedRequestSchema = z.object({
 	url: z.string(),

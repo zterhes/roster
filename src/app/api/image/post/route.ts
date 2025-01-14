@@ -5,7 +5,8 @@ import {
 	facebookPostToFeedRequestSchema,
 	facebookPostToFeedResponseSchema,
 	facebookPostToStoryRequestSchema,
-	postMessageSchema,
+	postMessageRequestSchema,
+	postMessageResponseSchema,
 } from "@/types/Post";
 import { NextResponse, type NextRequest } from "next/server";
 import { eq } from "drizzle-orm";
@@ -36,7 +37,7 @@ const config = {
 export const POST = async (req: NextRequest) => {
 	try {
 		const request = await req.json();
-		const parsedRequest = postMessageSchema.parse(request);
+		const parsedRequest = postMessageRequestSchema.parse(request);
 		console.log("parsedRequest", parsedRequest);
 
 		const getImageResult = await db
@@ -86,7 +87,8 @@ export const POST = async (req: NextRequest) => {
 				"Facebook account not found",
 			);
 		}
-		let response;
+
+		let response = null;
 		switch (imageData.type) {
 			case "story_roster_image":
 				console.log("from story_roster_image");
@@ -97,9 +99,22 @@ export const POST = async (req: NextRequest) => {
 				response = await postToFacebookFeed(imageData.imageUrl, parsedRequest.message, account, true); // to-do: published check by frontend
 				break;
 		}
-		console.log("response", response);
 
-		return NextResponse.json(request, { status: 200 });
+		const result = await db
+			.update(generatedImagesTable)
+			.set({ status: "posted" })
+			.where(eq(generatedImagesTable.id, Number(parsedRequest.imageId)))
+			.returning({
+				id: generatedImagesTable.id,
+			});
+
+		if (result[0].id == null) {
+			throw new PersistationError(PersistationErrorType.UpdateError, "Error updating status to posted");
+		}
+
+		const parsedResponse = postMessageResponseSchema.parse(response);
+
+		return NextResponse.json(parsedResponse, { status: 200 });
 	} catch (error) {
 		return handleError(error);
 	}
