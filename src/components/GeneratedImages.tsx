@@ -1,9 +1,16 @@
-import type { GeneratedImage } from "@/types/GeneratedImage";
+import { generatedImageTypeSchema, type GeneratedImage } from "@/types/GeneratedImage";
 import { Button } from "./ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
 import { useState } from "react";
 import Image from "next/image";
-
+import { Input } from "./ui/input";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from "@tanstack/react-query";
+import { postImage } from "@/lib/apiService";
+import { type PostMessageBody, postMessageSchema } from "@/types/Post";
+import { toast } from "@/hooks/use-toast";
 type Props = {
 	triggerImgGen: () => void;
 	enabled: boolean;
@@ -69,15 +76,68 @@ const ImageViewerDialog = ({
 	isDialogOpen: boolean;
 	setIsDialogOpen: (value: boolean) => void;
 }) => {
+	const {
+		register,
+		formState: { errors },
+		handleSubmit,
+	} = useForm<PostMessageBody>({
+		resolver: zodResolver(postMessageSchema),
+	});
+	console.log("errors", errors);
+	const mutation = useMutation({
+		mutationFn: (request: PostMessageBody) => postImage.fn(request),
+		mutationKey: [postImage.key],
+		onSuccess: () => {
+			toast({
+				variant: "default",
+				title: "Posting was successful",
+				description: "Check your feed for the post here: ",
+			});
+		},
+		onError: () => {
+			toast({
+				variant: "destructive",
+				title: "Error while posting",
+				description: "An error occurred while sending the message. Please try again or contact support.",
+			});
+		},
+	});
+
+	const onSubmit = (data: PostMessageBody) => {
+		console.log("data", data);
+		mutation.mutate(data);
+		setIsDialogOpen(false);
+	};
+
 	return (
 		<Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-			<DialogContent className="bg-[#0F1C26] border-[#193549] text-white min-w-[80%] min-h-[80%] ">
+			<DialogContent className="bg-[#0F1C26] border-[#193549] text-white ">
 				<DialogHeader>
 					<DialogTitle hidden className="text-[#00A3FF]">
 						{imagesData.type}
 					</DialogTitle>
 				</DialogHeader>
-				<Image src={imagesData.imageUrl} alt="Story Image" layout="fill" objectFit="contain" className="p-4" />
+				<div>
+					<Image src={imagesData.imageUrl} alt="Story Image" width={500} height={500} className="p-4" />
+				</div>
+				<form onSubmit={handleSubmit(onSubmit)} className="flex flex-col space-y-4 max-w-lg">
+					<Input id="type" {...register("type")} type="hidden" defaultValue={imagesData.type} />
+					<Input
+						id="imageId"
+						{...register("imageId")}
+						type="hidden"
+						defaultValue={Number.parseInt(imagesData.id.toString())}
+					/>
+					<Input
+						id="message"
+						{...register("message")}
+						className="bg-[#162029] border-[#193549] text-white"
+						placeholder="Enter a message"
+					/>
+					<Button variant={"roster"} type="submit">
+						Submit
+					</Button>
+				</form>
 			</DialogContent>
 		</Dialog>
 	);

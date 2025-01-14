@@ -13,6 +13,7 @@ import {
 	playerSchema,
 	type UpdatePlayerRequest,
 } from "@/types/Player";
+import type { PostMessageBody } from "@/types/Post";
 import { getRosterResponseSchema, type CreateRosterRequest } from "@/types/Roster";
 import axios from "axios";
 import axiosRetry from "axios-retry";
@@ -277,6 +278,18 @@ export const getMatchImages = {
 		}
 	},
 	key: "getMatchImages",
+};
+
+export const postImage = {
+	fn: async (body: PostMessageBody) => {
+		try {
+			const response = await axios.post("/api/image/post", body);
+			return response.status;
+		} catch (error) {
+			throw handleError(error, "/api/image/post");
+		}
+	},
+	key: "postImages",
 };
 
 const handleError = (error: unknown, route: string) => {

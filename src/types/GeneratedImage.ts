@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-const generatedImageTypeSchema = z.enum([
+export const generatedImageTypeSchema = z.enum([
 	"story_roster_image",
 	"post_roster_image",
 	"story_score_image",
