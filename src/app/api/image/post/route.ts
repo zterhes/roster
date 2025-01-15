@@ -51,6 +51,10 @@ export const POST = async (req: NextRequest) => {
 		);
 		const imageData = getImageResult[0];
 
+		if (imageData.status === "posted") {
+			throw new GeneratorError(GeneratorErrorType.Posted, "Image is already posted");
+		}
+
 		if (imageData.status !== "generated") {
 			throw new GeneratorError(GeneratorErrorType.NotGenerated, "Image is not generated yet");
 		}
@@ -109,7 +113,15 @@ export const POST = async (req: NextRequest) => {
 			.returning({ id: postsTable.id });
 		PersistationError.handleError(result[0], PersistationErrorType.CreateError, "Error while persisting post");
 
-		const parsedResponse = postMessageResponseSchema.parse(response);
+		await db
+			.update(generatedImagesTable)
+			.set({ status: "posted" })
+			.where(eq(generatedImagesTable.id, Number(parsedRequest.imageId)));
+
+		const parsedResponse = postMessageResponseSchema.parse({
+			id: result[0].id,
+			facebookId: response.id,
+		});
 
 		return NextResponse.json(parsedResponse, { status: 200 });
 	} catch (error) {

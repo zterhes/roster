@@ -1,4 +1,4 @@
-import { generatedImageTypeSchema, type GeneratedImage } from "@/types/GeneratedImage";
+import type { GeneratedImage } from "@/types/GeneratedImage";
 import { Button } from "./ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
 import { useState } from "react";
@@ -10,6 +10,8 @@ import { useMutation } from "@tanstack/react-query";
 import { postImage } from "@/lib/apiService";
 import { type PostMessageRequest, postMessageRequestSchema } from "@/types/Post";
 import { toast } from "@/hooks/use-toast";
+import { Separator } from "./ui/separator";
+
 type Props = {
 	triggerImgGen: () => void;
 	enabled: boolean;
@@ -121,14 +123,26 @@ const ImageViewerDialog = ({
 				<div>
 					<Image src={imagesData.imageUrl} alt="Story Image" width={500} height={500} className="p-4" />
 				</div>
+				<Separator orientation="horizontal" className="my-4 " />
 				<form onSubmit={handleSubmit(onSubmit)} className="flex flex-col space-y-4 max-w-lg">
+					<div className="flex items-center space-x-2">
+						<label
+							htmlFor="terms"
+							className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+						>
+							Accept terms and conditions
+						</label>
+					</div>
 					<Input id="imageId" {...register("imageId")} type="hidden" value={imagesData.id} />
-					<Input
-						id="message"
-						{...register("message")}
-						className="bg-[#162029] border-[#193549] text-white"
-						placeholder="Enter a message"
-					/>
+					{imagesData.type === "post_roster_image" && (
+						<Input
+							id="message"
+							{...register("message")}
+							className="bg-[#162029] border-[#193549] text-white"
+							placeholder="Enter a message"
+						/>
+					)}
+
 					<Button variant={"roster"} type="submit">
 						Submit
 					</Button>
