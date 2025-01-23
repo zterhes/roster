@@ -1,4 +1,4 @@
-import { generatedImagesTable } from "@/db/schema";
+import { generatedImagesPostsTable, generatedImagesTable, postsTable } from "@/db/schema";
 import { handleAuth } from "@/lib/auth";
 import { handleError } from "@/lib/utils";
 import { db } from "@/db";

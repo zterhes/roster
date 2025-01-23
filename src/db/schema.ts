@@ -69,16 +69,35 @@ export const generatedImagesTable = pgTable("generated_images", {
 		.notNull(),
 	imageUrl: text("image_url"),
 	type: generatedImagesTypesEnum("type").notNull(),
-	status: generatedImageStatusEnum("status").notNull().default("not_generated"),
+	status: generatedImageStatusEnum("status").notNull(),
 	createdAt: timestamp("created_at").notNull().defaultNow(),
 	updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
+export const socialMediaTypeEnum = pgEnum("social_media_type", ["facebook", "instagram"]);
+
 export const postsTable = pgTable("posts", {
 	id: serial("id").primaryKey(),
 	message: text("message"),
-	imageId: integer("image_id")
+	socialMediaId: text("social_media_id"),
+	socialMediaType: socialMediaTypeEnum("social_media_type").notNull(),
+	matchId: integer("match_id")
+		.references(() => matchesTable.id)
+		.notNull(),
+	scheduledPublishTime: timestamp("scheduled_publish_time"),
+	createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+export const generatedImagesPostsTable = pgTable("generated_images_posts", {
+	generatedImageId: integer("generated_image_id")
 		.references(() => generatedImagesTable.id)
 		.notNull(),
+	postId: integer("post_id")
+		.references(() => postsTable.id)
+		.notNull(),
+	matchId: integer("match_id")
+		.references(() => matchesTable.id)
+		.notNull(),
 	createdAt: timestamp("created_at").notNull().defaultNow(),
+	updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });

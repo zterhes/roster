@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { generatedImagesTable, postsTable } from "@/db/schema";
+import { generatedImagesPostsTable, generatedImagesTable, postsTable } from "@/db/schema";
 import { handleError } from "@/lib/utils";
 import {
 	facebookPostToFeedRequestSchema,
@@ -18,27 +18,18 @@ import {
 	PersistationError,
 	PersistationErrorType,
 } from "@/types/Errors";
-import axios from "axios";
+import axios, { type AxiosResponse, type AxiosError } from "axios";
+import env from "@/env";
 
-//to-do: this should come from env
-const config = {
-	facebook: {
-		baseUrl: "https://graph.facebook.com",
-		api_version: "v21.0",
-		accountUrl: "/me/accounts",
-		pageId: "562505300269600",
-		postUrl: "/photos",
-		storyUrl: "/photo_stories",
-		userToken:
-			"EAAI2Nu6pP8oBOygiYY2HZA4II6a8fYh7WEvfkAjGDhRPKi2C5fuHGNZB2ZAgQNmFZBql8BcgI9dPGEvnXF2Dd0EoX9jpFMIVcjTXBciUZBzPZC7CFaZBSMqFwvQp6LyHL2jbE5JSb36rYQ5ZBRZBPq2aWj2Jov7yWZBvtWvgCWVUbgQqwaBi2ZBP7wHkIJXZBhGi3bEq",
-	},
-};
+interface ErrorResponse {
+	message: string;
+	code?: number;
+}
 
 export const POST = async (req: NextRequest) => {
 	try {
 		const request = await req.json();
 		const parsedRequest = postMessageRequestSchema.parse(request);
-		console.log("parsedRequest", parsedRequest);
 
 		const getImageResult = await db
 			.select()
@@ -51,10 +42,6 @@ export const POST = async (req: NextRequest) => {
 		);
 		const imageData = getImageResult[0];
 
-		if (imageData.status === "posted") {
-			throw new GeneratorError(GeneratorErrorType.Posted, "Image is already posted");
-		}
-
 		if (imageData.status !== "generated") {
 			throw new GeneratorError(GeneratorErrorType.NotGenerated, "Image is not generated yet");
 		}
@@ -66,11 +53,23 @@ export const POST = async (req: NextRequest) => {
 			);
 		}
 
-		console.log("imageData.imageUrl", imageData.imageUrl);
+		let getAccountsResponse: AxiosResponse | null = null;
 
-		const getAccountsResponse = await axios.get(
-			`${config.facebook.baseUrl}/${config.facebook.api_version}${config.facebook.accountUrl}?access_token=${config.facebook.userToken}`,
-		);
+		try {
+			getAccountsResponse = await axios.get(
+				`${env.FACEBOOK_BASE_URL}/${env.FACEBOOK_API_VERSION}${env.FACEBOOK_ACCOUNT_URL}?access_token=${env.FACEBOOK_USER_TOKEN}`,
+			);
+		} catch (error) {
+			handleMetaConnectionError(error as AxiosError);
+		}
+
+		if (getAccountsResponse === null) {
+			throw new ClientServerCallError(
+				ClientServerCallErrorType.AxiosError,
+				"/api/image/post",
+				"Facebook response is null, when getting accounts",
+			);
+		}
 
 		if (getAccountsResponse.status !== 200) {
 			throw new ClientServerCallError(
@@ -79,9 +78,8 @@ export const POST = async (req: NextRequest) => {
 				"Facebook response not 200, when getting accounts",
 			);
 		}
-
 		const account = getAccountsResponse.data.data.find(
-			(account: { id: string }) => account.id === config.facebook.pageId,
+			(account: { id: string }) => account.id === env.FACEBOOK_PAGE_ID,
 		);
 
 		if (!account) {
@@ -95,33 +93,55 @@ export const POST = async (req: NextRequest) => {
 		let response = null;
 		switch (imageData.type) {
 			case "story_roster_image":
-				console.log("from story_roster_image");
-				response = await postToFacebookStory(imageData.imageUrl, account);
+				response = await postToFacebookStory(
+					imageData.imageUrl,
+					account,
+					!parsedRequest.isPublishLater,
+					parsedRequest.scheduledPublishTime,
+				);
 				break;
 			case "post_roster_image":
-				console.log("from post_roster_image");
-				response = await postToFacebookFeed(imageData.imageUrl, parsedRequest.message, account, true); // to-do: published check by frontend
+				response = await postToFacebookFeed(
+					imageData.imageUrl,
+					parsedRequest.message,
+					account,
+					!parsedRequest.isPublishLater,
+					parsedRequest.scheduledPublishTime,
+				);
 				break;
 		}
 
-		const result = await db
+		const postTableResult = await db
 			.insert(postsTable)
 			.values({
 				message: parsedRequest.message,
-				imageId: Number(parsedRequest.imageId),
+				socialMediaId: response.id,
+				socialMediaType: "facebook",
+				matchId: imageData.matchId,
 			})
-			.returning({ id: postsTable.id });
-		PersistationError.handleError(result[0], PersistationErrorType.CreateError, "Error while persisting post");
+			.returning({
+				id: postsTable.id,
+				socialMediaId: postsTable.socialMediaId,
+				socialMediaType: postsTable.socialMediaType,
+				matchId: postsTable.matchId,
+			});
 
-		await db
-			.update(generatedImagesTable)
-			.set({ status: "posted" })
-			.where(eq(generatedImagesTable.id, Number(parsedRequest.imageId)));
+		PersistationError.handleError(postTableResult[0], PersistationErrorType.CreateError, "Error while persisting post");
 
-		const parsedResponse = postMessageResponseSchema.parse({
-			id: result[0].id,
-			facebookId: response.id,
-		});
+		const junctionResult = await db
+			.insert(generatedImagesPostsTable)
+			.values({
+				generatedImageId: imageData.id,
+				postId: postTableResult[0].id,
+				matchId: postTableResult[0].matchId,
+			})
+			.returning({
+				id: generatedImagesPostsTable.postId,
+			});
+
+		PersistationError.handleError(junctionResult[0], PersistationErrorType.CreateError, "Error while persisting post");
+
+		const parsedResponse = postMessageResponseSchema.parse(postTableResult[0]);
 
 		return NextResponse.json(parsedResponse, { status: 200 });
 	} catch (error) {
@@ -131,61 +151,69 @@ export const POST = async (req: NextRequest) => {
 
 const postToFacebookFeed = async (
 	imageUrl: string,
-	message: string,
+	message: string | undefined,
 	account: { access_token: string },
 	published: boolean,
+	scheduledPublishTime?: Date,
 ) => {
 	const requestBody = facebookPostToFeedRequestSchema.parse({
 		url: imageUrl,
 		message,
 		published,
+		scheduled_publish_time: scheduledPublishTime ? Math.floor(scheduledPublishTime.getTime() / 1000) : undefined,
 	});
 
-	const postResponse = await axios.post(
-		`${config.facebook.baseUrl}/${config.facebook.api_version}/${config.facebook.pageId}${config.facebook.postUrl}`,
-		requestBody,
-		{
-			headers: {
-				"Content-Type": "application/json",
-				Authorization: `Bearer ${account.access_token}`,
+	const postResponse = await axios
+		.post(
+			`${env.FACEBOOK_BASE_URL}/${env.FACEBOOK_API_VERSION}/${env.FACEBOOK_PAGE_ID}${env.FACEBOOK_POST_URL}`,
+			requestBody,
+			{
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: `Bearer ${account.access_token}`,
+				},
 			},
-		},
-	);
+		)
+		.catch((error: AxiosError) => {
+			const errorData = error.response?.data as ErrorResponse;
+			throw new ClientServerCallError(ClientServerCallErrorType.AxiosError, "/api/image/post", errorData.message);
+		});
 
-	if (postResponse.status !== 200) {
-		throw new ClientServerCallError(
-			ClientServerCallErrorType.AxiosError,
-			"/api/image/post",
-			"Facebook response not 200, when posting image to feed",
-		);
-	}
 	return facebookPostToFeedResponseSchema.parse(postResponse.data);
 };
 
-const postToFacebookStory = async (imageUrl: string, account: { access_token: string }) => {
+const postToFacebookStory = async (
+	imageUrl: string,
+	account: { access_token: string },
+	published: boolean,
+	scheduledPublishTime?: Date,
+) => {
 	const response = await postToFacebookFeed(imageUrl, "", account, false);
-	console.log("response", response);
 	const requestBody = facebookPostToStoryRequestSchema.parse({
 		photo_id: response.id,
-		published: true,
+		published,
+		scheduled_publish_time: scheduledPublishTime ? Math.floor(scheduledPublishTime.getTime() / 1000) : undefined,
 	});
-	const postResponse = await axios.post(
-		`${config.facebook.baseUrl}/${config.facebook.api_version}/${config.facebook.pageId}${config.facebook.storyUrl}`,
-		requestBody,
-		{
-			headers: {
-				"Content-Type": "application/json",
-				Authorization: `Bearer ${account.access_token}`,
+	const postResponse = await axios
+		.post(
+			`${env.FACEBOOK_BASE_URL}/${env.FACEBOOK_API_VERSION}/${env.FACEBOOK_PAGE_ID}${env.FACEBOOK_STORY_URL}`,
+			requestBody,
+			{
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: `Bearer ${account.access_token}`,
+				},
 			},
-		},
-	);
+		)
+		.catch((error: AxiosError) => {
+			const errorData = error.response?.data as ErrorResponse;
+			throw new ClientServerCallError(ClientServerCallErrorType.AxiosError, "/api/image/post", errorData.message);
+		});
 
-	if (postResponse.status !== 200) {
-		throw new ClientServerCallError(
-			ClientServerCallErrorType.AxiosError,
-			"/api/image/post",
-			"Facebook response not 200, when posting story image",
-		);
-	}
 	return postResponse.data;
+};
+
+const handleMetaConnectionError = (error: AxiosError) => {
+	const errorData = error.response?.data as ErrorResponse;
+	throw new ClientServerCallError(ClientServerCallErrorType.AxiosError, "/api/image/post", errorData.message);
 };

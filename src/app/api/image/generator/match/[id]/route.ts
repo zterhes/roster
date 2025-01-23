@@ -43,14 +43,12 @@ export const GET = async (_request: Request, { params }: { params: Promise<{ id:
 			uploadToBlob({ file: storyImageBuffer, fileName: "story_roster_image" }),
 			uploadToBlob({ file: postImageBuffer, fileName: "post_roster_image" }),
 		]);
-		console.log("postImageUrl", postImageUrl);
 
 		await Promise.all([
 			updateImageTable(matchId, storyImageUrl, "story_roster_image"),
 			updateImageTable(matchId, postImageUrl, "post_roster_image"),
 		]);
 
-		console.log("storyImageUrl", storyImageUrl);
 		return NextResponse.json({ status: 200 });
 	} catch (error) {
 		return handleError(error);

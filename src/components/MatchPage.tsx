@@ -281,7 +281,10 @@ export default function MatchPage({ id }: Props) {
 
 			<Card className="bg-[#0F1C26] border-[#193549] mb-8">
 				<CardHeader>
-					<CardTitle className="text-[#00A3FF]">Score</CardTitle>
+					<CardTitle className="text-[#00A3FF]">
+						Score
+						<p className="text-sm text-slate-400">later Highlights, the Highlights app not implemented yet</p>
+					</CardTitle>
 				</CardHeader>
 				<CardContent className="flex gap-2 justify-around">
 					<div className="grid gap-2">
@@ -309,7 +312,7 @@ export default function MatchPage({ id }: Props) {
 					</div>
 				</CardContent>
 				<CardFooter className="flex justify-center">
-					<Button type="submit" variant={"roster"} className="w-1/2 mt-4">
+					<Button type="submit" variant={"roster"} className="w-1/2 mt-4" disabled>
 						Save Score
 					</Button>
 				</CardFooter>

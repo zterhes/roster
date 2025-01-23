@@ -50,7 +50,6 @@ export const updateDefaultImages = async (organizationId: string, post?: string,
 			organizationId: defaultsTable.organizationId,
 		});
 	if (result[0]?.organizationId == null) {
-		console.log("New Organization: Inserting Default Images");
 		result = await db
 			.insert(defaultsTable)
 			.values({ organizationId, postUrl: post, storyUrl: story, playerUrl: player })

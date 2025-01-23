@@ -39,7 +39,7 @@ export const POST = async (req: NextRequest, { params }: { params: Promise<{ id:
 			.set(request)
 			.where(eq(matchesTable.id, Number(id)))
 			.returning({ id: matchesTable.id });
-		PersistationError.handleError(result[0], PersistationErrorType.UpdateError);
+		PersistationError.handleError(result[0], PersistationErrorType.UpdateError, "Failed to update match");
 		return NextResponse.json({ status: 200 });
 	} catch (error) {
 		return handleError(error);

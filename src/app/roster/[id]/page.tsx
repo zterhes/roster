@@ -114,8 +114,6 @@ export default function RosterPage() {
 		}
 	}, [rosterData]);
 
-	console.log("roster", roster);
-
 	const handlePlayerChange = (index: number, value: string) => {
 		const newRoster = [...roster];
 		newRoster[index - 1].player = value;

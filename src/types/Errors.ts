@@ -61,4 +61,5 @@ export class GeneratorError extends Error {
 export enum GeneratorErrorType {
 	LoadingError = "LoadingError",
 	NotGenerated = "NotGenerated",
+	Posted = "Posted",
 }
