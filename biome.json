@@ -7,7 +7,7 @@
 	},
 	"files": {
 		"ignoreUnknown": false,
-		"ignore": []
+		"ignore": [".next/", "node_modules/", "drizzle/", "data/"]
 	},
 	"formatter": {
 		"enabled": true,
