@@ -29,7 +29,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 					<ClerkProvider
 						appearance={{
 							baseTheme: dark,
-							signIn: { baseTheme: dark },
 						}}
 					>
 						<SignedIn>

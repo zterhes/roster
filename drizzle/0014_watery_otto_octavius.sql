@@ -1,0 +1,1 @@
+ALTER TABLE "generated_images" ALTER COLUMN "post_ids" SET DEFAULT '{}';

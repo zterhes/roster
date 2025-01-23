@@ -15,7 +15,7 @@ export const GET = async () => {
 			.select()
 			.from(matchesTable)
 			.where(eq(matchesTable.organizationId, organizationId as string));
-		PersistationError.handleError(matches[0], PersistationErrorType.NotFound);
+		PersistationError.handleError(matches[0], PersistationErrorType.NotFound, "No matches found");
 		const response = matches.map((match) =>
 			matchSchema.parse({
 				id: match.id,
@@ -72,7 +72,7 @@ export const POST = async (req: NextRequest) => {
 				organizationId: organizationId,
 			})
 			.returning({ id: matchesTable.id });
-		PersistationError.handleError(createdMatch[0], PersistationErrorType.CreateError);
+		PersistationError.handleError(createdMatch[0], PersistationErrorType.CreateError, "Error creating match");
 
 		const createdImage = await db
 			.insert(generatedImagesTable)
@@ -80,14 +80,16 @@ export const POST = async (req: NextRequest) => {
 				{
 					matchId: createdMatch[0].id,
 					type: "story_roster_image",
+					status: "not_generated",
 				},
 				{
 					matchId: createdMatch[0].id,
 					type: "post_roster_image",
+					status: "not_generated",
 				},
 			])
 			.returning({ id: generatedImagesTable.id });
-		PersistationError.handleError(createdImage[0], PersistationErrorType.CreateError);
+		PersistationError.handleError(createdImage[0], PersistationErrorType.CreateError, "Error creating images");
 
 		const response = createdMatch[0];
 		return NextResponse.json({ ...response }, { status: 200 });

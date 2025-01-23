@@ -34,13 +34,11 @@ export const POST = async (req: NextRequest) => {
 							.returning({ id: rosterTable.id });
 						result.push(response[0]);
 					}
-					console.log("result", result);
 				} else {
 					if (select.length > 0) {
 						tx.rollback();
 					}
 					result = await tx.insert(rosterTable).values(daoList).returning({ id: rosterTable.id });
-					console.log("result", result);
 					if (result === null) tx.rollback();
 				}
 			})
@@ -53,7 +51,7 @@ export const POST = async (req: NextRequest) => {
 			.set({ rosterStatus: rosterEnum.Values.saved })
 			.where(eq(matchesTable.id, request.matchId))
 			.returning({ id: matchesTable.id });
-		PersistationError.handleError(result[0], PersistationErrorType.UpdateError);
+		PersistationError.handleError(result[0], PersistationErrorType.UpdateError, "Failed to update match");
 		return NextResponse.json({ status: 200 });
 	} catch (error) {
 		return handleError(error);

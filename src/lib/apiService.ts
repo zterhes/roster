@@ -13,6 +13,7 @@ import {
 	playerSchema,
 	type UpdatePlayerRequest,
 } from "@/types/Player";
+import { getPostByImageIdResponseSchema, postMessageResponseSchema, type PostMessageRequest } from "@/types/Post";
 import { getRosterResponseSchema, type CreateRosterRequest } from "@/types/Roster";
 import axios from "axios";
 import axiosRetry from "axios-retry";
@@ -24,12 +25,12 @@ axiosRetry(axios, {
 		return retryCount * 1000;
 	},
 	retryCondition: (error) => {
-		console.log("Fetch error...", error.message);
+		console.error("Fetch error...", error.message);
 		return true;
 	},
 
 	onRetry: (retryCount) => {
-		console.log("Retrying...", retryCount);
+		console.error("Retrying...", retryCount);
 	},
 });
 
@@ -277,6 +278,31 @@ export const getMatchImages = {
 		}
 	},
 	key: "getMatchImages",
+};
+
+export const postImage = {
+	fn: async (body: PostMessageRequest) => {
+		try {
+			const response = await axios.post("/api/image/post", body);
+			const result = postMessageResponseSchema.parse(response.data);
+			return result;
+		} catch (error) {
+			throw handleError(error, "/api/image/post");
+		}
+	},
+	key: "postImages",
+};
+
+export const getPostByImageId = {
+	fn: async (id: number) => {
+		try {
+			const response = await axios.get(`/api/image/post/image-id/${id}`);
+			return getPostByImageIdResponseSchema.parse(response.data);
+		} catch (error) {
+			throw handleError(error, `/api/image/post/image-id/${id}`);
+		}
+	},
+	key: "getPostByImageId",
 };
 
 const handleError = (error: unknown, route: string) => {

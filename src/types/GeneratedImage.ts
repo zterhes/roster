@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-const generatedImageTypeSchema = z.enum([
+export const generatedImageTypeSchema = z.enum([
 	"story_roster_image",
 	"post_roster_image",
 	"story_score_image",
@@ -11,7 +11,7 @@ const generatedImageStatusSchema = z.enum(["generated", "posted", "not_generated
 
 export const generatedImageSchema = z.object({
 	id: z.number(),
-	imageUrl: z.string(),
+	imageUrl: z.string().url().optional().nullish(),
 	type: generatedImageTypeSchema,
 	status: generatedImageStatusSchema,
 	matchId: z.number(),

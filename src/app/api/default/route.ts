@@ -36,7 +36,6 @@ export const POST = async (req: NextRequest) => {
 		let playerUrl: string | undefined = undefined;
 
 		const defaultImages = await getDefaultImages(organizationId as string);
-		console.log("defaultImages", defaultImages);
 
 		if (request.post) {
 			if (defaultImages.postUrl) await deleteFromBlob(defaultImages.postUrl);
