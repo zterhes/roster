@@ -1,0 +1,58 @@
+import type { Team } from "../types/match"
+
+export const sampleHomeTeam: Team = {
+  id: "home-team",
+  name: "Thunderbolts",
+  icon: "Zap",
+  players: [
+    { id: "h1", jerseyNumber: 1, name: "John Smith", position: "Prop" },
+    { id: "h2", jerseyNumber: 2, name: "Mike Johnson", position: "Hooker" },
+    { id: "h3", jerseyNumber: 3, name: "David Lee", position: "Prop" },
+    { id: "h4", jerseyNumber: 4, name: "Chris Brown", position: "Lock" },
+    { id: "h5", jerseyNumber: 5, name: "Tom Wilson", position: "Lock" },
+    { id: "h6", jerseyNumber: 6, name: "James Taylor", position: "Flanker" },
+    { id: "h7", jerseyNumber: 7, name: "Robert Davis", position: "Flanker" },
+    { id: "h8", jerseyNumber: 8, name: "Daniel White", position: "Number Eight" },
+    { id: "h9", jerseyNumber: 9, name: "Paul Anderson", position: "Scrum-half" },
+    { id: "h10", jerseyNumber: 10, name: "Mark Thompson", position: "Fly-half" },
+    { id: "h11", jerseyNumber: 11, name: "Steven Clark", position: "Wing" },
+    { id: "h12", jerseyNumber: 12, name: "Kevin Lewis", position: "Centre" },
+    { id: "h13", jerseyNumber: 13, name: "Brian Hall", position: "Centre" },
+    { id: "h14", jerseyNumber: 14, name: "George Martin", position: "Wing" },
+    { id: "h15", jerseyNumber: 15, name: "Edward King", position: "Full-back" },
+  ],
+  score: 0,
+  yellowCards: 0,
+  redCards: 0,
+  tackles: 0,
+  breakthroughs: 0,
+}
+
+export const sampleAwayTeam: Team = {
+  id: "away-team",
+  name: "Cyclones",
+  icon: "Wind",
+  players: [
+    { id: "a1", jerseyNumber: 1, name: "Alex Johnson", position: "Prop" },
+    { id: "a2", jerseyNumber: 2, name: "Ryan Williams", position: "Hooker" },
+    { id: "a3", jerseyNumber: 3, name: "Nathan Brown", position: "Prop" },
+    { id: "a4", jerseyNumber: 4, name: "Oliver Davis", position: "Lock" },
+    { id: "a5", jerseyNumber: 5, name: "Liam Wilson", position: "Lock" },
+    { id: "a6", jerseyNumber: 6, name: "Ethan Taylor", position: "Flanker" },
+    { id: "a7", jerseyNumber: 7, name: "Mason Anderson", position: "Flanker" },
+    { id: "a8", jerseyNumber: 8, name: "Noah White", position: "Number Eight" },
+    { id: "a9", jerseyNumber: 9, name: "Jacob Thompson", position: "Scrum-half" },
+    { id: "a10", jerseyNumber: 10, name: "William Clark", position: "Fly-half" },
+    { id: "a11", jerseyNumber: 11, name: "Samuel Lewis", position: "Wing" },
+    { id: "a12", jerseyNumber: 12, name: "Benjamin Hall", position: "Centre" },
+    { id: "a13", jerseyNumber: 13, name: "Joseph Martin", position: "Centre" },
+    { id: "a14", jerseyNumber: 14, name: "Daniel King", position: "Wing" },
+    { id: "a15", jerseyNumber: 15, name: "Michael Scott", position: "Full-back" },
+  ],
+  score: 0,
+  yellowCards: 0,
+  redCards: 0,
+  tackles: 0,
+  breakthroughs: 0,
+}
+
