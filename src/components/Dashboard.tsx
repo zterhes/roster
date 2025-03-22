@@ -37,61 +37,68 @@ export default function MatchesDashboard() {
 								<TableHead className="text-slate-400">Away Team</TableHead>
 								<TableHead className="text-slate-400">Place</TableHead>
 								<TableHead className="text-slate-400">Date & Time</TableHead>
+								<TableHead className="text-slate-400">Roster Status</TableHead>
 								<TableHead className="text-slate-400">Score</TableHead>
-								<TableHead className="text-slate-400">Status</TableHead>
 							</TableRow>
 						</TableHeader>
 						<TableBody>
 							{matches?.map((match) => (
-								<TableRow
-									key={match.id}
-									className="border-slate-800 hover:bg-slate-900 cursor-pointer"
-									onClick={() => router.push(`/match/${match.id}`)}
-								>
-									<TableCell className="font-medium">
-										<div className="flex items-center gap-2">
-											<Image
-												src={match.homeTeam.logoUrl}
-												alt={`${match.homeTeam.name} logo`}
-												width={32}
-												height={32}
-												className="rounded-full"
-											/>
-											<span className="hidden sm:inline">{match.homeTeam.name}</span>
-										</div>
-									</TableCell>
-									<TableCell>
-										<div className="flex items-center gap-2">
-											<Image
-												src={match.awayTeam.logoUrl}
-												alt={`${match.awayTeam.name} logo`}
-												width={32}
-												height={32}
-												className="rounded-full"
-											/>
-											<span className="hidden sm:inline">{match.awayTeam.name}</span>
-										</div>
-									</TableCell>
-									<TableCell className="hidden md:table-cell">
-										<div className="flex items-center gap-2">
-											<MapPinIcon className="h-4 w-4 text-slate-400" />
-											{match.place}
-										</div>
-									</TableCell>
-									<TableCell className="hidden lg:table-cell">
-										<div className="flex items-center gap-2">
-											<CalendarIcon className="h-4 w-4 text-slate-400" />
-											{new Date(match.date).toLocaleString("en-GB", {
-												dateStyle: "medium",
-												timeStyle: "short",
-											})}
-										</div>
-									</TableCell>
-									<TableCell>not implemented</TableCell>
-									<TableCell className="hidden sm:table-cell">
-										<span className="capitalize">{match.rosterStatus}</span>
-									</TableCell>
-								</TableRow>
+								<>
+									<TableRow key={match.id} className="border-slate-800 hover:bg-slate-900">
+										<TableCell className="font-medium">
+											<div className="flex items-center gap-2">
+												<Image
+													src={match.homeTeam.logoUrl}
+													alt={`${match.homeTeam.name} logo`}
+													width={32}
+													height={32}
+													className="rounded-full"
+												/>
+												<span className="hidden sm:inline">{match.homeTeam.name}</span>
+											</div>
+										</TableCell>
+										<TableCell>
+											<div className="flex items-center gap-2">
+												<Image
+													src={match.awayTeam.logoUrl}
+													alt={`${match.awayTeam.name} logo`}
+													width={32}
+													height={32}
+													className="rounded-full"
+												/>
+												<span className="hidden sm:inline">{match.awayTeam.name}</span>
+											</div>
+										</TableCell>
+										<TableCell className="hidden md:table-cell">
+											<div className="flex items-center gap-2">
+												<MapPinIcon className="h-4 w-4 text-slate-400" />
+												{match.place}
+											</div>
+										</TableCell>
+										<TableCell className="hidden lg:table-cell">
+											<div className="flex items-center gap-2">
+												<CalendarIcon className="h-4 w-4 text-slate-400" />
+												{new Date(match.date).toLocaleString("en-GB", {
+													dateStyle: "medium",
+													timeStyle: "short",
+												})}
+											</div>
+										</TableCell>
+										<TableCell className="hidden sm:table-cell">
+											<span className="capitalize">{match.rosterStatus}</span>
+										</TableCell>
+										<TableCell>
+											<Link href={`/tracker/${match.id}`}>
+												<Button variant="roster">Track the match</Button>
+											</Link>
+										</TableCell>
+										<TableCell>
+											<Link href={`/match/${match.id}`}>
+												<Button variant="roster">Look on the match</Button>
+											</Link>
+										</TableCell>
+									</TableRow>
+								</>
 							))}
 						</TableBody>
 					</Table>

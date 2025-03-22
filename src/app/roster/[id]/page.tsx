@@ -58,6 +58,7 @@ export default function RosterPage() {
 		refetchOnMount: false,
 	});
 
+	//to-do: fix this --- not need anymore because this data already in roster query
 	const { data: players, isLoading: isLoadingPlayers } = useQuery({
 		queryKey: ["players"],
 		queryFn: () => fetchPlayers.fn(),
@@ -98,14 +99,15 @@ export default function RosterPage() {
 		return "";
 	}, [match]);
 
+	//to-do: fix this --- not need anymore because this data already in roster query
 	useMemo(() => {
 		if (rosterData) {
 			setRoster(
 				rugbyPositions.map((position) => {
-					const player = rosterData.find((player) => player.positionId === position.positionId);
+					const player = rosterData.find((player) => player.roster.positionId === position.positionId);
 					return {
 						positionId: position.positionId,
-						player: player ? player.playerId.toString() : "",
+						player: player ? player.roster.playerId.toString() : "",
 					};
 				}),
 			);
@@ -149,7 +151,7 @@ export default function RosterPage() {
 	};
 
 	const findPlayerById = (positionId: number) => {
-		const playerId = rosterData?.find((player) => player.positionId === positionId)?.playerId;
+		const playerId = rosterData?.find((player) => player.roster.positionId === positionId)?.roster.playerId;
 		const player = players?.find((player) => player.id === playerId);
 		return `${player?.firstName} ${player?.lastName}`;
 	};

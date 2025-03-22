@@ -72,6 +72,7 @@ export const selectRosterByMatchId = async (matchId: string) => {
 	const result = await db
 		.select()
 		.from(rosterTable)
+		.innerJoin(playersTable, eq(rosterTable.playerId, playersTable.id))
 		.where(eq(rosterTable.matchId, Number(matchId)));
 
 	if (result.length === 0)

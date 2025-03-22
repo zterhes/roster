@@ -18,7 +18,12 @@ export const rosterSchema = z.object({
 	matchId: z.number(),
 });
 
-export const getRosterResponseSchema = z.array(rosterSchema);
+export const rosterResponseBodySchema = z.object({
+	roster: rosterSchema,
+	player: playerSchema,
+});
+
+export const getRosterResponseSchema = z.array(rosterResponseBodySchema);
 
 export const getPlayerByRosterSchema = z.object({
 	roster: rosterSchema,
